@@ -15,9 +15,8 @@ export function AdminLoginForm() {
     setMessage("");
 
     const supabase = createSupabaseBrowserClient();
-
     if (!supabase) {
-      setMessage("Supabase non e configurato.");
+      setMessage("Supabase non e' configurato.");
       setPending(false);
       return;
     }
@@ -25,42 +24,27 @@ export function AdminLoginForm() {
     const redirectTo = `${window.location.origin}/auth/callback?next=/admin`;
     const { error } = await supabase.auth.signInWithOtp({
       email,
-      options: {
-        emailRedirectTo: redirectTo,
-      },
+      options: { emailRedirectTo: redirectTo },
     });
 
     setPending(false);
-    setMessage(
-      error
-        ? "Non sono riuscito a inviare il link."
-        : "Link inviato. Controlla la tua email.",
-    );
+    setMessage(error ? "Non sono riuscito a inviare il link." : "Link inviato. Controlla la tua email.");
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <label className="block">
-        <span className="text-xs uppercase tracking-[0.18em] text-muted">
-          Email admin
-        </span>
-        <input
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          type="email"
-          required
-          className="mt-3 w-full border-b border-line bg-transparent py-4 text-lg outline-none transition focus:border-foreground"
-        />
-      </label>
-      <button
-        type="submit"
-        disabled={pending}
-        className="inline-flex min-h-12 items-center gap-3 rounded-full bg-foreground px-6 py-3 text-sm uppercase tracking-[0.16em] text-paper transition hover:bg-sage disabled:opacity-60"
-      >
-        {pending ? "Invio" : "Ricevi magic link"}
+      <div>
+        <label className="block text-xs uppercase tracking-[0.18em] text-accent mb-2">Email admin</label>
+        <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required
+          className="w-full bg-transparent border-b border-pure-white/20 py-3 text-lg text-pure-white outline-none transition-colors focus:border-accent placeholder:text-pure-white/30"
+          placeholder="admin@email.com" />
+      </div>
+      <button type="submit" disabled={pending}
+        className="inline-flex items-center gap-3 bg-accent text-pure-black px-6 py-3 text-sm uppercase tracking-[0.16em] font-medium hover:bg-pure-white transition-colors disabled:opacity-60">
+        {pending ? "Invio..." : "Ricevi magic link"}
         <ArrowUpRight size={16} strokeWidth={1.5} />
       </button>
-      {message ? <p className="text-sm text-muted">{message}</p> : null}
+      {message ? <p className="text-sm text-pure-white/60">{message}</p> : null}
     </form>
   );
 }

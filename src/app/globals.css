@@ -1,93 +1,99 @@
 @import "tailwindcss";
 
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Unbounded:wght@700&display=swap');
+
 :root {
-  --background: #f7f4ee;
-  --foreground: #111111;
-  --paper: #fffdf8;
-  --muted: #6e6a63;
-  --line: #d8d2c6;
-  --ink-soft: #2b2b29;
-  --sage: #66786d;
-  --mist: #dfe7df;
+  --pure-black: #000000;
+  --pure-white: #ffffff;
+  --deep-blue: #18407b;
+  --accent: #5eead4;
+  --text-blue: #1c4f9a;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-paper: var(--paper);
-  --color-muted: var(--muted);
-  --color-line: var(--line);
-  --color-ink-soft: var(--ink-soft);
-  --color-sage: var(--sage);
-  --color-mist: var(--mist);
-  --font-sans: "Neue Haas Grotesk Text", "Inter", "Aptos", "Segoe UI",
-    system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", "Iowan Old Style", "Baskerville",
-    "Times New Roman", ui-serif, serif;
-  --font-mono: "SFMono-Regular", "Cascadia Code", Consolas, monospace;
+  --color-background: #000000;
+  --color-foreground: #ffffff;
+  --color-paper: #0a0a0a;
+  --color-muted: rgba(255, 255, 255, 0.55);
+  --color-line: rgba(255, 255, 255, 0.12);
+  --color-ink-soft: #cccccc;
+  --color-deep-blue: #18407b;
+  --color-accent: #5eead4;
+  --color-pure-black: #000000;
+  --color-pure-white: #ffffff;
+  --font-sans: "Manrope", system-ui, sans-serif;
+  --font-display: "Unbounded", system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", ui-serif, serif;
+  --font-mono: "SFMono-Regular", Consolas, monospace;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-sans);
-  text-rendering: geometricPrecision;
+  background: #000000;
+  color: #ffffff;
+  font-family: "Manrope", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-body::before {
+/* SVG Mask Reveal */
+.svg-wrap {
+  position: relative;
+  width: 100%;
   pointer-events: none;
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-  content: "";
-  opacity: 0.32;
-  background-image:
-    linear-gradient(rgba(17, 17, 17, 0.025) 1px, transparent 1px),
-    radial-gradient(rgba(17, 17, 17, 0.06) 0.6px, transparent 0.6px);
-  background-size:
-    100% 9px,
-    14px 14px;
-  mix-blend-mode: multiply;
+  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+  transition: clip-path 0.6s cubic-bezier(0.7, 0, 0.3, 1);
+}
+.svg-wrap.shown {
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+/* Grid Item Entrance */
+.grid-item[data-pos="left"] {
+  transform: translateX(-100px);
+  opacity: 0;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+}
+.grid-item[data-pos="right"] {
+  transform: translateX(100px);
+  opacity: 0;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+}
+.grid-item[data-pos="center"] {
+  transform: translateY(50px);
+  opacity: 0;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+}
+.grid-item.is-inview {
+  transform: translate(0);
+  opacity: 1;
+}
+
+/* Clip Reveal */
+.clip-reveal {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+}
+.clip-reveal.is-inview {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Neon Line */
+.neon-line {
+  width: 60px;
+  height: 1px;
+  background-color: #5eead4;
 }
 
 ::selection {
-  background: var(--sage);
-  color: var(--paper);
-}
-
-.font-editorial {
-  font-family: var(--font-serif);
-}
-
-.text-balance {
-  text-wrap: balance;
-}
-
-.ink-mask {
-  clip-path: path(
-    "M 0.05 0.84 C 0.13 0.62 0.2 0.31 0.42 0.18 C 0.62 0.06 0.85 0.1 0.96 0.31 C 1.06 0.5 0.88 0.78 0.64 0.88 C 0.43 0.96 0.21 0.97 0.05 0.84 Z"
-  );
-}
-
-.pen-mask {
-  border-radius: 42% 58% 53% 47% / 52% 34% 66% 48%;
-}
-
-.manga-scroll {
-  writing-mode: horizontal-tb;
+  background: #5eead4;
+  color: #000000;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+  .grid-item { transform: none !important; opacity: 1 !important; }
+  .clip-reveal { clip-path: inset(0 0 0 0) !important; }
 }

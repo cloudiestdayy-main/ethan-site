@@ -2,22 +2,8 @@ import "server-only";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Artwork } from "@/lib/supabase/types";
-import { getPublicSupabaseConfig } from "@/lib/env";
-
-export function getArtworkImageUrl(path: string | null | undefined) {
-  const config = getPublicSupabaseConfig();
-
-  if (!config || !path) {
-    return null;
-  }
-
-  const safePath = path
-    .split("/")
-    .map((part) => encodeURIComponent(part))
-    .join("/");
-
-  return `${config.url}/storage/v1/object/public/artworks/${safePath}`;
-}
+import { getArtworkImageUrl as _getArtworkImageUrl } from "@/lib/artworks-shared";
+export { getArtworkImageUrl } from "@/lib/artworks-shared";
 
 export async function getPublicArtworks(options?: { featured?: boolean }) {
   const supabase = await createSupabaseServerClient();

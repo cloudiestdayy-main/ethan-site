@@ -94,7 +94,7 @@ export function AdminUploadForm() {
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-      <label className="group relative flex min-h-[360px] cursor-pointer items-center justify-center overflow-hidden rounded-[28px] border border-dashed border-line bg-paper text-center transition hover:border-sage">
+      <label className="group relative flex min-h-[360px] cursor-pointer items-center justify-center overflow-hidden rounded-[28px] border border-dashed border-line bg-paper text-center transition hover:border-accent">
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -161,7 +161,7 @@ export function AdminUploadForm() {
         <button
           type="submit"
           disabled={state === "uploading" || state === "saving"}
-          className="inline-flex min-h-12 items-center gap-3 rounded-full bg-foreground px-6 py-3 text-sm uppercase tracking-[0.16em] text-paper transition hover:bg-sage disabled:opacity-60"
+          className="inline-flex min-h-12 items-center gap-3 rounded-full bg-foreground px-6 py-3 text-sm uppercase tracking-[0.16em] text-paper transition hover:bg-accent disabled:opacity-60"
         >
           {state === "done" ? <Check size={16} strokeWidth={1.5} /> : null}
           {state === "uploading"

@@ -8,128 +8,70 @@ import { getArtworkImageUrl } from "@/lib/artworks";
 
 export default async function AdminPage() {
   const session = await getAdminSession();
-
-  if (session.configured && !session.user) {
-    redirect("/admin/login");
-  }
-
+  if (session.configured && !session.user) redirect("/admin/login");
   const artworks = session.allowed ? await getAllArtworksForAdmin() : [];
 
   return (
-    <main className="min-h-screen bg-background px-5 py-8 md:px-10">
-      <div className="mx-auto max-w-7xl">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-8">
+    <main className="min-h-screen bg-pure-black px-5 py-8 md:px-10">
+      <div className="mx-auto max-w-[1440px]">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-pure-white/10 pb-8">
           <div>
-            <Link
-              href="/"
-              className="text-xs uppercase tracking-[0.18em] text-muted hover:text-sage"
-            >
-              Studio Tavole
-            </Link>
-            <h1 className="mt-5 font-editorial text-6xl leading-none md:text-8xl">
-              Admin.
-            </h1>
+            <Link href="/" className="text-xs uppercase tracking-[0.18em] text-pure-white/50 hover:text-accent transition-colors">Ethan&apos;s Drawings</Link>
+            <h1 className="mt-5 font-display text-5xl md:text-7xl font-bold text-pure-white uppercase">Admin</h1>
           </div>
           {session.user ? <SignOutButton /> : null}
         </header>
 
         {!session.configured ? (
-          <section className="mt-12 rounded-[30px] bg-paper p-8 md:p-12">
-            <p className="text-xs uppercase tracking-[0.2em] text-sage">
-              Configurazione richiesta
-            </p>
-            <h2 className="mt-5 font-editorial text-5xl leading-none">
-              Aggiungi le variabili Supabase per attivare lo studio.
-            </h2>
-            <p className="mt-6 max-w-2xl text-muted">
-              Dopo aver creato il progetto Supabase, imposta
-              NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY,
-              SUPABASE_SERVICE_ROLE_KEY e ADMIN_EMAILS.
-            </p>
+          <section className="mt-12 rounded-[20px] bg-paper p-8 md:p-12">
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">Configurazione richiesta</p>
+            <h2 className="mt-5 font-display text-4xl md:text-5xl font-bold text-pure-white uppercase">Aggiungi le variabili Supabase</h2>
+            <p className="mt-6 max-w-2xl text-pure-white/60">Dopo aver creato il progetto Supabase, imposta NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY e ADMIN_EMAILS.</p>
           </section>
         ) : !session.allowed ? (
-          <section className="mt-12 rounded-[30px] bg-paper p-8 md:p-12">
-            <p className="text-xs uppercase tracking-[0.2em] text-sage">
-              Accesso negato
-            </p>
-            <h2 className="mt-5 font-editorial text-5xl leading-none">
-              Questa email non e nella allowlist admin.
-            </h2>
+          <section className="mt-12 rounded-[20px] bg-deep-blue p-8 md:p-12">
+            <p className="text-xs uppercase tracking-[0.2em] text-accent">Accesso negato</p>
+            <h2 className="mt-5 font-display text-4xl md:text-5xl font-bold text-pure-white uppercase">Questa email non e' nella allowlist admin.</h2>
           </section>
         ) : (
           <div className="mt-12 grid gap-12">
-            <section className="rounded-[30px] bg-paper p-6 md:p-10">
+            <section className="rounded-[20px] bg-deep-blue p-6 md:p-10">
               <div className="mb-10">
-                <p className="text-xs uppercase tracking-[0.2em] text-sage">
-                  Nuova opera
-                </p>
-                <h2 className="mt-4 font-editorial text-5xl leading-none">
-                  Carica una tavola.
-                </h2>
+                <p className="text-xs uppercase tracking-[0.2em] text-accent">Nuova opera</p>
+                <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-pure-white uppercase">Carica una tavola</h2>
               </div>
               <AdminUploadForm />
             </section>
-
-            <section className="rounded-[30px] bg-paper p-6 md:p-10">
+            <section className="rounded-[20px] bg-deep-blue p-6 md:p-10">
               <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-sage">
-                    Archivio
-                  </p>
-                  <h2 className="mt-4 font-editorial text-5xl leading-none">
-                    Opere caricate.
-                  </h2>
+                  <p className="text-xs uppercase tracking-[0.2em] text-accent">Archivio</p>
+                  <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-pure-white uppercase">Opere caricate</h2>
                 </div>
-                <p className="text-sm text-muted">{artworks.length} totali</p>
+                <p className="text-sm text-pure-white/50">{artworks.length} totali</p>
               </div>
-
               {artworks.length ? (
                 <div className="grid gap-4">
                   {artworks.map((artwork) => {
                     const imageUrl = getArtworkImageUrl(artwork.image_path);
-
                     return (
-                      <article
-                        key={artwork.id}
-                        className="grid gap-5 border-t border-line py-5 md:grid-cols-[120px_1fr_auto] md:items-center"
-                      >
-                        <div className="relative aspect-[0.78] overflow-hidden rounded-[18px] bg-mist">
-                          {imageUrl ? (
-                            <Image
-                              src={imageUrl}
-                              alt={artwork.title}
-                              fill
-                              sizes="120px"
-                              className="object-cover"
-                            />
-                          ) : null}
+                      <article key={artwork.id} className="grid gap-5 border-t border-pure-white/10 py-5 md:grid-cols-[120px_1fr_auto] md:items-center">
+                        <div className="relative aspect-[0.78] overflow-hidden rounded-xl bg-pure-black">
+                          {imageUrl ? <Image src={imageUrl} alt={artwork.title} fill sizes="120px" className="object-cover" /> : null}
                         </div>
                         <div>
-                          <h3 className="font-editorial text-3xl leading-none">
-                            {artwork.title}
-                          </h3>
-                          <p className="mt-2 text-sm text-muted">
-                            {artwork.year || "Senza anno"} /{" "}
-                            {artwork.published ? "pubblicata" : "bozza"} /{" "}
-                            {artwork.featured ? "in evidenza" : "archivio"}
-                          </p>
+                          <h3 className="font-display text-2xl font-bold text-pure-white">{artwork.title}</h3>
+                          <p className="mt-2 text-sm text-pure-white/50">{artwork.year || "Senza anno"} / {artwork.published ? "pubblicata" : "bozza"} / {artwork.featured ? "in evidenza" : "archivio"}</p>
                         </div>
                         {artwork.published ? (
-                          <Link
-                            href={`/portfolio/${artwork.slug}`}
-                            className="text-xs uppercase tracking-[0.16em] text-muted hover:text-sage"
-                          >
-                            Apri
-                          </Link>
+                          <Link href={`/portfolio/${artwork.slug}`} className="text-xs uppercase tracking-[0.16em] text-pure-white/50 hover:text-accent transition-colors">Apri</Link>
                         ) : null}
                       </article>
                     );
                   })}
                 </div>
               ) : (
-                <div className="border-t border-line pt-6 text-muted">
-                  Nessuna opera caricata.
-                </div>
+                <div className="border-t border-pure-white/10 pt-6 text-pure-white/50">Nessuna opera caricata.</div>
               )}
             </section>
           </div>

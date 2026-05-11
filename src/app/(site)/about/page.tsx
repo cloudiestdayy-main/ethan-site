@@ -1,74 +1,51 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/reveal";
 
 export const metadata: Metadata = {
   title: "Studio",
-  description: "Profilo dello studio e della pratica artistica.",
+  description: "Chi sono e la mia pratica artistica.",
 };
 
 export default function AboutPage() {
   return (
-    <main className="px-5 pb-24 pt-36 md:px-10 md:pt-44">
-      <div className="mx-auto max-w-7xl">
-        <Reveal className="grid gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-end">
-          <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-sage">
-              Studio
-            </p>
-            <h1 className="mt-5 font-editorial text-7xl leading-none md:text-[10rem]">
-              Segno, pausa, pagina.
-            </h1>
+    <main>
+      <section className="relative min-h-[80vh] overflow-hidden flex items-center justify-center">
+        <div className="absolute inset-0">
+          <Image src="/images/portfolio/Pagina-29.png" alt="Studio" fill className="object-cover" />
+          <div className="absolute inset-0 bg-pure-black/70" />
+        </div>
+        <div className="relative z-10 text-center px-5">
+          <h1 className="font-display text-6xl md:text-9xl font-bold text-pure-white uppercase">CHI SONO</h1>
+          <p className="mt-6 text-lg text-pure-white/80">Artista italiano, cuore giapponese</p>
+        </div>
+      </section>
+
+      <section className="bg-deep-blue py-20 md:py-40">
+        <div className="mx-auto max-w-[1440px] px-5 md:px-10">
+          <div className="grid gap-10 lg:grid-cols-[0.58fr_0.42fr] lg:items-start">
+            <div className="relative overflow-hidden">
+              <div className="clip-reveal">
+                <Image src="/images/portfolio/Pagina-20.png" alt="Tavola esempio" width={800} height={1067} className="w-full aspect-[3/4] object-cover rounded-2xl" />
+              </div>
+            </div>
+            <div className="lg:pl-10">
+              <Reveal delay={0.2}><div className="neon-line mb-6" /><p className="text-xs uppercase tracking-[0.22em] text-accent mb-4">La mia storia</p></Reveal>
+              <Reveal delay={0.3}><h2 className="font-display text-3xl md:text-5xl font-bold text-pure-white uppercase leading-[0.95] mb-8">Segno, pausa, pagina</h2></Reveal>
+              <Reveal delay={0.4}><p className="text-lg text-pure-white/80 leading-relaxed mb-6">Mi chiamo Ethan e sono un artista italiano con una passione viscerale per la cultura giapponese. Fin da bambino, i manga hanno rappresentato per me non solo una forma di intrattenimento, ma un vero e proprio linguaggio visivo attraverso cui esprimere emozioni e narrare storie.</p></Reveal>
+              <Reveal delay={0.5}><p className="text-lg text-pure-white/80 leading-relaxed mb-6">Il mio viaggio artistico e' iniziato con i primi scarabocchi ispirati a Dragon Ball ed e' proseguito attraverso anni di studio approfondito delle tecniche tradizionali giapponesi. Ho avuto la fortuna di viaggiare in Giappone, dove ho potuto immergermi nella cultura dell&apos;inking e del sumi-e, affinando il mio stile personale.</p></Reveal>
+              <Reveal delay={0.6}><p className="text-lg text-pure-white/80 leading-relaxed mb-10">Oggi il mio lavoro fonde la precisione del tratto manga con la ricchezza espressiva della tradizione artistica giapponese.</p></Reveal>
+              <Reveal delay={0.7}>
+                <Link href="/contact" className="inline-flex items-center gap-3 bg-accent text-pure-black px-8 py-4 text-base font-medium hover:bg-pure-white transition-colors duration-300">
+                  Parliamo di una commissione <ArrowUpRight size={18} />
+                </Link>
+              </Reveal>
+            </div>
           </div>
-          <p className="max-w-2xl text-xl leading-9 text-muted">
-            La pratica nasce dalla tavola manga, ma viene presentata con un
-            passo piu vicino al magazine, alla stampa fine art e alla pubblicita
-            giapponese silenziosa.
-          </p>
-        </Reveal>
-
-        <section className="mt-24 grid gap-10 lg:grid-cols-[0.58fr_0.42fr]">
-          <Reveal className="relative min-h-[520px] overflow-hidden rounded-[34px] bg-paper p-8 md:p-12">
-            <div className="absolute left-[10%] top-[14%] h-[68%] w-[46%] rounded-[48%_52%_46%_54%/56%_38%_62%_44%] border border-foreground/15" />
-            <div className="absolute right-[12%] top-[18%] h-[58%] w-px rotate-12 bg-foreground/20" />
-            <div className="absolute bottom-12 left-12 max-w-xs">
-              <p className="font-editorial text-5xl leading-none">
-                Una tavola non va riempita. Va ascoltata.
-              </p>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.1} className="space-y-10">
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-sage">
-                Metodo
-              </p>
-              <p className="mt-5 text-lg leading-8 text-muted">
-                Ogni commissione parte da ritmo, atmosfera e formato. Il
-                risultato deve funzionare come sequenza narrativa, ma anche come
-                immagine autonoma da esporre.
-              </p>
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-[0.2em] text-sage">
-                Direzione
-              </p>
-              <p className="mt-5 text-lg leading-8 text-muted">
-                Bianco, nero, grigi, pochi accenti. Layout rarefatti. Tipografia
-                editoriale. Nessun rumore da portfolio tecnico.
-              </p>
-            </div>
-            <Link
-              href="/contact"
-              className="inline-flex min-h-12 items-center gap-3 rounded-full bg-foreground px-6 py-3 text-sm uppercase tracking-[0.16em] text-paper transition hover:bg-sage"
-            >
-              Parliamo di una commissione
-              <ArrowUpRight size={16} strokeWidth={1.5} />
-            </Link>
-          </Reveal>
-        </section>
-      </div>
+        </div>
+      </section>
     </main>
   );
 }

@@ -6,15 +6,14 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   ),
   title: {
-    default: "Studio Tavole | Portfolio manga editoriale",
-    template: "%s | Studio Tavole",
+    default: "Ethan's Drawings | Portfolio manga",
+    template: "%s | Ethan's Drawings",
   },
   description:
-    "Portfolio editoriale per tavole manga e commissioni artistiche, con una direzione visiva minimale e contemplativa.",
+    "Portfolio manga e illustrazioni di Ethan, artista italiano appassionato di cultura giapponese.",
   openGraph: {
-    title: "Studio Tavole | Portfolio manga editoriale",
-    description:
-      "Tavole manga presentate come una galleria d'arte contemporanea.",
+    title: "Ethan's Drawings | Portfolio manga",
+    description: "Dove il disegno prende forma. Tavole manga e commissioni artistiche.",
     type: "website",
     locale: "it_IT",
   },
@@ -27,7 +26,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="it" className="h-full scroll-smooth">
-      <body className="min-h-full bg-background text-foreground antialiased">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className="min-h-full bg-pure-black text-pure-white antialiased">
         {children}
       </body>
     </html>

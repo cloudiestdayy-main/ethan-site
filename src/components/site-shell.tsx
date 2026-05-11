@@ -4,7 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 
 export function SiteShell({ children }: PropsWithChildren) {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-pure-black text-pure-white">
       <SiteHeader />
       {children}
       <SiteFooter />
