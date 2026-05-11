@@ -3,6 +3,7 @@ export type Artwork = {
   title: string;
   slug: string;
   description: string | null;
+  category: string | null;
   year: number | null;
   image_path: string;
   image_width: number | null;
