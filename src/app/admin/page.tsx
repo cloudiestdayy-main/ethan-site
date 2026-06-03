@@ -1,10 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AdminArtworkManager } from "@/components/admin-artwork-manager";
 import { AdminUploadForm } from "@/components/admin-upload-form";
 import { SignOutButton } from "@/components/sign-out-button";
 import { getAdminSession, getAllArtworksForAdmin } from "@/lib/admin";
-import { getArtworkImageUrl } from "@/lib/artworks";
 
 export default async function AdminPage() {
   const session = await getAdminSession();
@@ -31,7 +30,7 @@ export default async function AdminPage() {
         ) : !session.allowed ? (
           <section className="mt-12 rounded-[20px] bg-deep-blue p-8 md:p-12">
             <p className="text-xs uppercase tracking-[0.2em] text-accent">Accesso negato</p>
-            <h2 className="mt-5 font-display text-4xl md:text-5xl font-bold text-pure-white uppercase">Questa email non e' nella allowlist admin.</h2>
+            <h2 className="mt-5 font-display text-4xl md:text-5xl font-bold text-pure-white uppercase">Questa email non e&apos; nella allowlist admin.</h2>
           </section>
         ) : (
           <div className="mt-12 grid gap-12">
@@ -48,31 +47,13 @@ export default async function AdminPage() {
                   <p className="text-xs uppercase tracking-[0.2em] text-accent">Archivio</p>
                   <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold text-pure-white uppercase">Opere caricate</h2>
                 </div>
-                <p className="text-sm text-pure-white/50">{artworks.length} totali</p>
               </div>
-              {artworks.length ? (
-                <div className="grid gap-4">
-                  {artworks.map((artwork) => {
-                    const imageUrl = getArtworkImageUrl(artwork.image_path);
-                    return (
-                      <article key={artwork.id} className="grid gap-5 border-t border-pure-white/10 py-5 md:grid-cols-[120px_1fr_auto] md:items-center">
-                        <div className="relative aspect-[0.78] overflow-hidden rounded-xl bg-pure-black">
-                          {imageUrl ? <Image src={imageUrl} alt={artwork.title} fill sizes="120px" className="object-cover" /> : null}
-                        </div>
-                        <div>
-                          <h3 className="font-display text-2xl font-bold text-pure-white">{artwork.title}</h3>
-                          <p className="mt-2 text-sm text-pure-white/50">{artwork.year || "Senza anno"} / {artwork.published ? "pubblicata" : "bozza"} / {artwork.featured ? "in evidenza" : "archivio"}</p>
-                        </div>
-                        {artwork.published ? (
-                          <Link href={`/portfolio/${artwork.slug}`} className="text-xs uppercase tracking-[0.16em] text-pure-white/50 hover:text-accent transition-colors">Apri</Link>
-                        ) : null}
-                      </article>
-                    );
-                  })}
-                </div>
-              ) : (
-                <div className="border-t border-pure-white/10 pt-6 text-pure-white/50">Nessuna opera caricata.</div>
-              )}
+              <AdminArtworkManager
+                key={artworks
+                  .map((artwork) => `${artwork.id}:${artwork.sort_order}:${artwork.image_width || 0}:${artwork.image_height || 0}`)
+                  .join("|")}
+                artworks={artworks}
+              />
             </section>
           </div>
         )}

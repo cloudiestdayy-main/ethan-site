@@ -1,8 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Check, ImageUp } from "lucide-react";
+import { readClientImageDimensions } from "@/lib/client-image-dimensions";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type UploadState = "idle" | "uploading" | "saving" | "done" | "error";
@@ -12,7 +13,19 @@ export function AdminUploadForm() {
   const [file, setFile] = useState<File | null>(null);
   const [state, setState] = useState<UploadState>("idle");
   const [message, setMessage] = useState("");
-  const previewUrl = useMemo(() => (file ? URL.createObjectURL(file) : ""), [file]);
+  const [previewUrl, setPreviewUrl] = useState("");
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    };
+  }, [previewUrl]);
+
+  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
+    const selectedFile = event.target.files?.[0] || null;
+    setFile(selectedFile);
+    setPreviewUrl(selectedFile ? URL.createObjectURL(selectedFile) : "");
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -33,6 +46,7 @@ export function AdminUploadForm() {
 
     setState("uploading");
     setMessage("");
+    const dimensions = await readClientImageDimensions(file);
 
     const uploadResponse = await fetch("/api/admin/upload-url", {
       method: "POST",
@@ -71,9 +85,12 @@ export function AdminUploadForm() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         title: form.get("title"),
+        category: form.get("category") || null,
         description: form.get("description"),
         year: form.get("year") || null,
         image_path: uploadData.path,
+        image_width: dimensions.image_width,
+        image_height: dimensions.image_height,
         featured: form.get("featured") === "on",
         published: form.get("published") === "on",
       }),
@@ -87,6 +104,7 @@ export function AdminUploadForm() {
 
     event.currentTarget.reset();
     setFile(null);
+    setPreviewUrl("");
     setState("done");
     setMessage("Opera salvata.");
     router.refresh();
@@ -107,7 +125,7 @@ export function AdminUploadForm() {
           type="file"
           accept="image/*"
           className="sr-only"
-          onChange={(event) => setFile(event.target.files?.[0] || null)}
+          onChange={handleFileChange}
         />
         <span className="relative z-10 inline-flex items-center gap-3 rounded-full border border-accent/30 bg-pure-black/60 px-5 py-3 text-sm uppercase tracking-[0.16em] text-pure-white backdrop-blur-sm transition-all duration-300 group-hover:border-accent group-hover:bg-accent/10 group-hover:shadow-[0_0_20px_rgba(94,234,212,0.15)]">
           <ImageUp size={16} strokeWidth={1.5} />
@@ -127,6 +145,31 @@ export function AdminUploadForm() {
             className="mt-2 w-full border-b border-pure-white/15 bg-transparent py-4 text-lg text-pure-white placeholder:text-pure-white/25 outline-none transition focus:border-accent"
           />
         </label>
+        <div className="grid gap-5 md:grid-cols-2">
+          <label className="block">
+            <span className="text-xs uppercase tracking-[0.18em] text-pure-white/50">
+              Categoria
+            </span>
+            <input
+              name="category"
+              placeholder="Manga, character design..."
+              className="mt-2 w-full border-b border-pure-white/15 bg-transparent py-4 text-lg text-pure-white placeholder:text-pure-white/25 outline-none transition focus:border-accent"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs uppercase tracking-[0.18em] text-pure-white/50">
+              Anno
+            </span>
+            <input
+              name="year"
+              type="number"
+              min="1900"
+              max="2100"
+              placeholder="2025"
+              className="mt-2 w-full border-b border-pure-white/15 bg-transparent py-4 text-lg text-pure-white placeholder:text-pure-white/25 outline-none transition focus:border-accent"
+            />
+          </label>
+        </div>
         <label className="block">
           <span className="text-xs uppercase tracking-[0.18em] text-pure-white/50">
             Descrizione
@@ -136,19 +179,6 @@ export function AdminUploadForm() {
             rows={5}
             placeholder="Breve descrizione..."
             className="mt-2 w-full resize-none border-b border-pure-white/15 bg-transparent py-4 text-lg text-pure-white placeholder:text-pure-white/25 outline-none transition focus:border-accent"
-          />
-        </label>
-        <label className="block">
-          <span className="text-xs uppercase tracking-[0.18em] text-pure-white/50">
-            Anno
-          </span>
-          <input
-            name="year"
-            type="number"
-            min="1900"
-            max="2100"
-            placeholder="2025"
-            className="mt-2 w-full border-b border-pure-white/15 bg-transparent py-4 text-lg text-pure-white placeholder:text-pure-white/25 outline-none transition focus:border-accent"
           />
         </label>
         <div className="flex flex-wrap gap-6 text-sm text-pure-white/60">

@@ -4,6 +4,7 @@ create table if not exists public.artworks (
   id uuid primary key default gen_random_uuid(),
   title text not null,
   slug text unique not null,
+  category text,
   description text,
   year int,
   image_path text not null,
@@ -14,6 +15,10 @@ create table if not exists public.artworks (
   sort_order int default 0,
   created_at timestamptz default now()
 );
+
+alter table public.artworks add column if not exists category text;
+alter table public.artworks add column if not exists image_width int;
+alter table public.artworks add column if not exists image_height int;
 
 create table if not exists public.commission_requests (
   id uuid primary key default gen_random_uuid(),

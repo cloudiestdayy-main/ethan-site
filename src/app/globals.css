@@ -1,26 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&family=Unbounded:wght@700&display=swap');
-
 :root {
-  --pure-black: #000000;
-  --pure-white: #ffffff;
-  --deep-blue: #18407b;
-  --accent: #5eead4;
+  --pure-black: #0a0a0a;
+  --pure-white: #f0ece6;
+  --deep-blue: #111111;
+  --accent: #c9a87c;
   --text-blue: #1c4f9a;
 }
 
 @theme inline {
-  --color-background: #000000;
-  --color-foreground: #ffffff;
-  --color-paper: #0a0a0a;
-  --color-muted: rgba(255, 255, 255, 0.55);
-  --color-line: rgba(255, 255, 255, 0.12);
+  --color-background: #0a0a0a;
+  --color-foreground: #f0ece6;
+  --color-paper: #111111;
+  --color-muted: rgba(240, 236, 230, 0.55);
+  --color-line: rgba(240, 236, 230, 0.12);
   --color-ink-soft: #cccccc;
-  --color-deep-blue: #18407b;
-  --color-accent: #5eead4;
-  --color-pure-black: #000000;
-  --color-pure-white: #ffffff;
+  --color-deep-blue: #111111;
+  --color-accent: #c9a87c;
+  --color-pure-black: #0a0a0a;
+  --color-pure-white: #f0ece6;
+  --color-text-primary: #f0ece6;
+  --color-text-secondary: #8a8279;
+  --color-border-subtle: #222222;
+  --color-accent-strong: #a83636;
+  --color-paper-light: #f4f1ea;
+  --color-ink: #1c1917;
+  --color-elevated: #111111;
   --font-sans: "Manrope", system-ui, sans-serif;
   --font-display: "Unbounded", system-ui, sans-serif;
   --font-serif: "Cormorant Garamond", ui-serif, serif;
@@ -32,23 +38,11 @@
 html { scroll-behavior: smooth; }
 
 body {
-  background: #000000;
-  color: #ffffff;
+  background: #0a0a0a;
+  color: #f0ece6;
   font-family: "Manrope", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* SVG Mask Reveal */
-.svg-wrap {
-  position: relative;
-  width: 100%;
-  pointer-events: none;
-  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
-  transition: clip-path 0.6s cubic-bezier(0.7, 0, 0.3, 1);
-}
-.svg-wrap.shown {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
 }
 
 /* Grid Item Entrance */
@@ -81,19 +75,73 @@ body {
   clip-path: inset(0 0 0 0);
 }
 
-/* Neon Line */
-.neon-line {
-  width: 60px;
+/* Accent line */
+.line-accent {
+  width: 48px;
   height: 1px;
-  background-color: #5eead4;
+  background-color: #c9a87c;
 }
 
+/* Header entrance */
+@keyframes headerEnter {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.site-header-enter {
+  animation: headerEnter 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Portfolio scrollbar (light section) */
+.portfolio-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #c5c5be transparent;
+}
+
+.portfolio-scrollbar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.portfolio-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.portfolio-scrollbar::-webkit-scrollbar-thumb {
+  background: #c5c5be;
+  border-radius: 999px;
+}
+
+/* Selection */
 ::selection {
-  background: #5eead4;
-  color: #000000;
+  background: #c9a87c;
+  color: #0a0a0a;
 }
 
+/* Global scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c9a87c;
+}
+
+/* Custom cursor helper */
+@media (hover: hover) and (pointer: fine) {
+  .cursor-none,
+  .cursor-none * {
+    cursor: none !important;
+  }
+}
+
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .grid-item { transform: none !important; opacity: 1 !important; }
   .clip-reveal { clip-path: inset(0 0 0 0) !important; }
+  .site-header-enter { animation: none !important; }
 }

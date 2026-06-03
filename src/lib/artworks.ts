@@ -2,7 +2,6 @@ import "server-only";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Artwork } from "@/lib/supabase/types";
-import { getArtworkImageUrl as _getArtworkImageUrl } from "@/lib/artworks-shared";
 export { getArtworkImageUrl } from "@/lib/artworks-shared";
 
 export async function getPublicArtworks(options?: { featured?: boolean }) {

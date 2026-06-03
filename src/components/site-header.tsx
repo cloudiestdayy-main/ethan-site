@@ -1,103 +1,104 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X } from "lucide-react";
+import { Mail, Menu, Search, UserRound, X } from "lucide-react";
 
 const navItems = [
-  { href: "/", label: "Home" },
-  { href: "/portfolio", label: "Opere" },
-  { href: "/about", label: "Studio" },
+  { href: "/portfolio", label: "I miei lavori" },
+  { href: "/about", label: "Chi sono" },
   { href: "/contact", label: "Commissioni" },
+];
+
+const actionItems = [
+  { href: "/portfolio", label: "Cerca opere", Icon: Search },
+  { href: "/admin/login", label: "Area admin", Icon: UserRound },
+  { href: "/contact", label: "Scrivi", Icon: Mail },
 ];
 
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
-    setMounted(true);
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  useEffect(() => { setMenuOpen(false); }, [pathname]);
-
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-700 ${
+        className={`site-header-enter fixed inset-x-0 top-0 z-50 transition-all duration-700 ${
           scrolled
-            ? "bg-pure-black/90 backdrop-blur-xl border-b border-pure-white/5"
+            ? "border-b border-white/5 bg-pure-black/85 backdrop-blur-xl"
             : "bg-transparent"
-        } ${mounted ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}`}
+        }`}
       >
-        <nav className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 md:px-10">
-          {/* Logo come bottone */}
-          <Link
-            href="/"
-            className="group relative inline-flex items-center gap-2 rounded-full border border-pure-white/15 bg-pure-white/5 px-4 py-2 text-sm font-medium text-pure-white backdrop-blur-sm transition-all duration-500 hover:border-accent hover:bg-accent/10 hover:shadow-[0_0_20px_rgba(94,234,212,0.15)]"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-40" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
-            </span>
-            <span className="font-display tracking-wide">Ethan&apos;s Drawings</span>
-          </Link>
-
-          {/* Desktop nav */}
-          <div className="hidden md:flex items-center gap-1">
-            {navItems.map((item, i) => (
+        <nav className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center px-5 py-5 md:px-10">
+          <div className="hidden items-center gap-8 md:flex">
+            {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="group relative px-4 py-2 text-sm font-medium text-pure-white/80 transition-colors duration-300 hover:text-pure-white"
-                style={{ transitionDelay: mounted ? `${i * 50}ms` : "0ms" }}
+                className={`relative text-[14px] font-medium tracking-[0.02em] transition-colors duration-300 hover:text-accent ${
+                  pathname === item.href
+                    ? "text-pure-white"
+                    : "text-pure-white/70"
+                }`}
               >
-                <span className="relative z-10 flex items-center gap-2">
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full transition-all duration-500 ${
-                      pathname === item.href
-                        ? "bg-accent shadow-[0_0_8px_rgba(94,234,212,0.6)] scale-100"
-                        : "bg-pure-white/30 scale-75 group-hover:scale-100 group-hover:bg-accent/70"
-                    }`}
-                  />
-                  {item.label}
-                </span>
-                {/* Underline animato */}
-                <span
-                  className={`absolute bottom-1 left-4 right-4 h-px bg-accent transition-all duration-500 ease-out ${
-                    pathname === item.href
-                      ? "scale-x-100 opacity-100"
-                      : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100"
-                  }`}
-                  style={{ transformOrigin: "center" }}
-                />
+                {item.label}
+                {pathname === item.href && (
+                  <span className="absolute -bottom-1 left-0 h-px w-full bg-accent" />
+                )}
               </Link>
             ))}
           </div>
 
-          {/* Mobile toggle */}
+          <Link
+            href="/"
+            onClick={() => setMenuOpen(false)}
+            className="justify-self-center font-serif text-[28px] font-semibold leading-none text-pure-white transition-colors duration-300 hover:text-accent md:text-[32px]"
+          >
+            ED
+          </Link>
+
+          <div className="hidden items-center justify-end gap-3 md:flex">
+            {actionItems.map(({ href, label, Icon }) => (
+              <Link
+                key={label}
+                href={href}
+                aria-label={label}
+                title={label}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-pure-white transition-all duration-300 hover:border-accent hover:text-accent"
+              >
+                <Icon size={20} strokeWidth={1.5} />
+              </Link>
+            ))}
+          </div>
+
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="relative md:hidden text-pure-white w-10 h-10 flex items-center justify-center rounded-full border border-pure-white/10 bg-pure-white/5 transition-all duration-300 hover:border-accent hover:bg-accent/10"
+            className="relative flex h-10 w-10 items-center justify-center justify-self-end rounded-full border border-white/10 text-pure-white transition-all duration-300 hover:border-accent hover:text-accent md:hidden"
             aria-label="Toggle menu"
           >
-            <span className="relative w-5 h-5">
+            <span className="relative h-5 w-5">
               <Menu
-                size={20}
-                className={`absolute inset-0 transition-all duration-300 ${
-                  menuOpen ? "rotate-90 opacity-0 scale-75" : "rotate-0 opacity-100 scale-100"
+                size={18}
+                className={`absolute inset-0 m-auto transition-all duration-300 ${
+                  menuOpen
+                    ? "rotate-90 scale-75 opacity-0"
+                    : "rotate-0 scale-100 opacity-100"
                 }`}
               />
               <X
-                size={20}
-                className={`absolute inset-0 transition-all duration-300 ${
-                  menuOpen ? "rotate-0 opacity-100 scale-100" : "-rotate-90 opacity-0 scale-75"
+                size={18}
+                className={`absolute inset-0 m-auto transition-all duration-300 ${
+                  menuOpen
+                    ? "rotate-0 scale-100 opacity-100"
+                    : "-rotate-90 scale-75 opacity-0"
                 }`}
               />
             </span>
@@ -105,39 +106,52 @@ export function SiteHeader() {
         </nav>
       </header>
 
-      {/* Mobile menu fullscreen */}
       <div
         className={`fixed inset-0 z-40 bg-pure-black/98 backdrop-blur-2xl transition-all duration-700 md:hidden ${
-          menuOpen ? "opacity-100 visible" : "opacity-0 invisible"
+          menuOpen ? "visible opacity-100" : "invisible opacity-0"
         }`}
       >
-        <div className="flex flex-col items-center justify-center h-full gap-8">
-          {navItems.map((item, i) => (
+        <div className="flex h-full flex-col items-center justify-center gap-8">
+          {navItems.map((item, index) => (
             <Link
               key={item.href}
               href={item.href}
-              className={`group relative font-display text-4xl font-bold text-pure-white transition-all duration-500 hover:text-accent ${
-                menuOpen ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+              onClick={() => setMenuOpen(false)}
+              className={`group relative font-serif text-4xl font-semibold text-pure-white transition-all duration-500 hover:text-accent ${
+                menuOpen
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
               }`}
-              style={{ transitionDelay: menuOpen ? `${150 + i * 80}ms` : "0ms" }}
+              style={{
+                transitionDelay: menuOpen ? `${150 + index * 80}ms` : "0ms",
+              }}
             >
               <span className="flex items-center gap-3">
                 <span
-                  className={`h-2 w-2 rounded-full transition-all duration-500 ${
+                  className={`h-1.5 w-1.5 rounded-full transition-all duration-500 ${
                     pathname === item.href
-                      ? "bg-accent shadow-[0_0_12px_rgba(94,234,212,0.5)]"
+                      ? "bg-accent"
                       : "bg-pure-white/20 group-hover:bg-accent/60"
                   }`}
                 />
                 {item.label}
               </span>
-              <span
-                className={`absolute -bottom-2 left-0 h-px bg-accent transition-all duration-500 ${
-                  pathname === item.href ? "w-full" : "w-0 group-hover:w-full"
-                }`}
-              />
             </Link>
           ))}
+
+          <div className="mt-4 flex items-center gap-4">
+            {actionItems.map(({ href, label, Icon }) => (
+              <Link
+                key={label}
+                href={href}
+                onClick={() => setMenuOpen(false)}
+                aria-label={label}
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-pure-white transition-all hover:border-accent hover:text-accent"
+              >
+                <Icon size={20} strokeWidth={1.5} />
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </>
