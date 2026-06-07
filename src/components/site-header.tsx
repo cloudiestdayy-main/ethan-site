@@ -33,11 +33,11 @@ export function SiteHeader() {
       <header
         className={`site-header-enter fixed inset-x-0 top-0 z-50 transition-all duration-700 ${
           scrolled
-            ? "border-b border-white/5 bg-pure-black/85 backdrop-blur-xl"
+            ? "border-b border-ink/5 bg-pure-white/85 backdrop-blur-xl"
             : "bg-transparent"
         }`}
       >
-        <nav className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center px-5 py-5 md:px-10">
+        <nav className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 md:grid md:grid-cols-[1fr_auto_1fr] md:py-5 md:px-10">
           <div className="hidden items-center gap-8 md:flex">
             {navItems.map((item) => (
               <Link
@@ -45,8 +45,8 @@ export function SiteHeader() {
                 href={item.href}
                 className={`relative text-[14px] font-medium tracking-[0.02em] transition-colors duration-300 hover:text-accent ${
                   pathname === item.href
-                    ? "text-pure-white"
-                    : "text-pure-white/70"
+                    ? "text-ink"
+                    : "text-ink/60"
                 }`}
               >
                 {item.label}
@@ -60,7 +60,7 @@ export function SiteHeader() {
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
-            className="justify-self-center font-serif text-[28px] font-semibold leading-none text-pure-white transition-colors duration-300 hover:text-accent md:text-[32px]"
+            className="justify-self-center font-serif text-[28px] font-semibold leading-none text-ink transition-colors duration-300 hover:text-accent md:text-[32px]"
           >
             ED
           </Link>
@@ -72,7 +72,7 @@ export function SiteHeader() {
                 href={href}
                 aria-label={label}
                 title={label}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-pure-white transition-all duration-300 hover:border-accent hover:text-accent"
+                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent hover:text-accent"
               >
                 <Icon size={20} strokeWidth={1.5} />
               </Link>
@@ -81,7 +81,7 @@ export function SiteHeader() {
 
           <button
             onClick={() => setMenuOpen(!menuOpen)}
-            className="relative flex h-10 w-10 items-center justify-center justify-self-end rounded-full border border-white/10 text-pure-white transition-all duration-300 hover:border-accent hover:text-accent md:hidden"
+            className="relative flex h-10 w-10 items-center justify-center justify-self-end rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent hover:text-accent md:hidden"
             aria-label="Toggle menu"
           >
             <span className="relative h-5 w-5">
@@ -107,17 +107,17 @@ export function SiteHeader() {
       </header>
 
       <div
-        className={`fixed inset-0 z-40 bg-pure-black/98 backdrop-blur-2xl transition-all duration-700 md:hidden ${
+        className={`fixed inset-0 z-40 bg-pure-white/98 backdrop-blur-2xl transition-all duration-700 md:hidden ${
           menuOpen ? "visible opacity-100" : "invisible opacity-0"
         }`}
       >
-        <div className="flex h-full flex-col items-center justify-center gap-8">
+        <div className="flex h-full flex-col items-center justify-center gap-6">
           {navItems.map((item, index) => (
             <Link
               key={item.href}
               href={item.href}
               onClick={() => setMenuOpen(false)}
-              className={`group relative font-serif text-4xl font-semibold text-pure-white transition-all duration-500 hover:text-accent ${
+              className={`group relative font-serif text-[clamp(1.75rem,7vw,2.5rem)] font-semibold text-ink transition-all duration-500 hover:text-accent ${
                 menuOpen
                   ? "translate-y-0 opacity-100"
                   : "translate-y-8 opacity-0"
@@ -131,7 +131,7 @@ export function SiteHeader() {
                   className={`h-1.5 w-1.5 rounded-full transition-all duration-500 ${
                     pathname === item.href
                       ? "bg-accent"
-                      : "bg-pure-white/20 group-hover:bg-accent/60"
+                      : "bg-ink/20 group-hover:bg-accent/60"
                   }`}
                 />
                 {item.label}
@@ -146,7 +146,7 @@ export function SiteHeader() {
                 href={href}
                 onClick={() => setMenuOpen(false)}
                 aria-label={label}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-white/10 text-pure-white transition-all hover:border-accent hover:text-accent"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 text-ink transition-all hover:border-accent hover:text-accent"
               >
                 <Icon size={20} strokeWidth={1.5} />
               </Link>

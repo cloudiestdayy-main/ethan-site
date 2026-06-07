@@ -21,7 +21,7 @@ export function ContactForm() {
         <input
           name="name"
           required
-          className="w-full border-b border-white/10 bg-transparent py-3 text-base text-pure-white outline-none transition-colors placeholder:text-white/20 focus:border-accent"
+          className="w-full border-b border-ink/10 bg-transparent py-3 text-base text-ink outline-none transition-colors placeholder:text-ink/20 focus:border-accent"
           placeholder="Il tuo nome"
         />
       </div>
@@ -33,7 +33,7 @@ export function ContactForm() {
           name="email"
           type="email"
           required
-          className="w-full border-b border-white/10 bg-transparent py-3 text-base text-pure-white outline-none transition-colors placeholder:text-white/20 focus:border-accent"
+          className="w-full border-b border-ink/10 bg-transparent py-3 text-base text-ink outline-none transition-colors placeholder:text-ink/20 focus:border-accent"
           placeholder="la tua@email.com"
         />
       </div>
@@ -45,14 +45,14 @@ export function ContactForm() {
           name="message"
           required
           rows={5}
-          className="w-full resize-none border-b border-white/10 bg-transparent py-3 text-base text-pure-white outline-none transition-colors placeholder:text-white/20 focus:border-accent"
+          className="w-full resize-none border-b border-ink/10 bg-transparent py-3 text-base text-ink outline-none transition-colors placeholder:text-ink/20 focus:border-accent"
           placeholder="Descrivi la tua idea..."
         />
       </div>
       <button
         type="submit"
         disabled={pending}
-        className="inline-flex items-center gap-3 rounded-full border border-accent bg-accent px-8 py-4 text-sm font-medium text-pure-black transition-all duration-300 hover:bg-pure-white hover:text-pure-black disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex items-center gap-3 rounded-full border border-accent bg-accent px-8 py-4 text-sm font-medium text-pure-white transition-all duration-300 hover:bg-ink hover:text-pure-white disabled:cursor-not-allowed disabled:opacity-60"
       >
         <Send size={16} strokeWidth={1.5} />
         {pending ? "Invio in corso..." : "Invia richiesta"}

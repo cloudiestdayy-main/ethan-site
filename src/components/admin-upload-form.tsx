@@ -112,7 +112,7 @@ export function AdminUploadForm() {
 
   return (
     <form onSubmit={handleSubmit} className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr]">
-      <label className="group relative flex min-h-[360px] cursor-pointer items-center justify-center overflow-hidden rounded-[28px] border border-dashed border-pure-white/20 bg-deep-blue/20 text-center transition-all duration-500 hover:border-accent hover:bg-deep-blue/30">
+      <label className="group relative flex min-h-[360px] cursor-pointer items-center justify-center overflow-hidden rounded-[28px] border border-dashed border-ink/15 bg-paper/60 text-center transition-all duration-500 hover:border-accent hover:bg-paper">
         {previewUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -127,7 +127,7 @@ export function AdminUploadForm() {
           className="sr-only"
           onChange={handleFileChange}
         />
-        <span className="relative z-10 inline-flex items-center gap-3 rounded-full border border-accent/30 bg-pure-black/60 px-5 py-3 text-sm uppercase tracking-[0.16em] text-pure-white backdrop-blur-sm transition-all duration-300 group-hover:border-accent group-hover:bg-accent/10 group-hover:shadow-[0_0_20px_rgba(94,234,212,0.15)]">
+        <span className="relative z-10 inline-flex items-center gap-3 rounded-full border border-accent/30 bg-pure-white/80 px-5 py-3 text-sm uppercase tracking-[0.16em] text-ink backdrop-blur-sm transition-all duration-300 group-hover:border-accent group-hover:bg-accent/10 group-hover:shadow-[0_0_20px_rgba(201,168,124,0.15)]">
           <ImageUp size={16} strokeWidth={1.5} />
           Seleziona tavola
         </span>
@@ -135,29 +135,29 @@ export function AdminUploadForm() {
 
       <div className="space-y-5">
         <label className="block">
-          <span className="text-xs uppercase tracking-[0.18em] text-pure-white/50">
+          <span className="text-xs uppercase tracking-[0.18em] text-ink/40">
             Titolo
           </span>
           <input
             name="title"
             required
             placeholder="Titolo dell'opera"
-            className="mt-2 w-full border-b border-pure-white/15 bg-transparent py-4 text-lg text-pure-white placeholder:text-pure-white/25 outline-none transition focus:border-accent"
+            className="mt-2 w-full border-b border-ink/10 bg-transparent py-4 text-lg text-ink placeholder:text-ink/20 outline-none transition focus:border-accent"
           />
         </label>
         <div className="grid gap-5 md:grid-cols-2">
           <label className="block">
-            <span className="text-xs uppercase tracking-[0.18em] text-pure-white/50">
+            <span className="text-xs uppercase tracking-[0.18em] text-ink/40">
               Categoria
             </span>
             <input
               name="category"
               placeholder="Manga, character design..."
-              className="mt-2 w-full border-b border-pure-white/15 bg-transparent py-4 text-lg text-pure-white placeholder:text-pure-white/25 outline-none transition focus:border-accent"
+              className="mt-2 w-full border-b border-ink/10 bg-transparent py-4 text-lg text-ink placeholder:text-ink/20 outline-none transition focus:border-accent"
             />
           </label>
           <label className="block">
-            <span className="text-xs uppercase tracking-[0.18em] text-pure-white/50">
+            <span className="text-xs uppercase tracking-[0.18em] text-ink/40">
               Anno
             </span>
             <input
@@ -166,44 +166,44 @@ export function AdminUploadForm() {
               min="1900"
               max="2100"
               placeholder="2025"
-              className="mt-2 w-full border-b border-pure-white/15 bg-transparent py-4 text-lg text-pure-white placeholder:text-pure-white/25 outline-none transition focus:border-accent"
+              className="mt-2 w-full border-b border-ink/10 bg-transparent py-4 text-lg text-ink placeholder:text-ink/20 outline-none transition focus:border-accent"
             />
           </label>
         </div>
         <label className="block">
-          <span className="text-xs uppercase tracking-[0.18em] text-pure-white/50">
+          <span className="text-xs uppercase tracking-[0.18em] text-ink/40">
             Descrizione
           </span>
           <textarea
             name="description"
             rows={5}
             placeholder="Breve descrizione..."
-            className="mt-2 w-full resize-none border-b border-pure-white/15 bg-transparent py-4 text-lg text-pure-white placeholder:text-pure-white/25 outline-none transition focus:border-accent"
+            className="mt-2 w-full resize-none border-b border-ink/10 bg-transparent py-4 text-lg text-ink placeholder:text-ink/20 outline-none transition focus:border-accent"
           />
         </label>
-        <div className="flex flex-wrap gap-6 text-sm text-pure-white/60">
+        <div className="flex flex-wrap gap-6 text-sm text-ink/50">
           <label className="inline-flex items-center gap-3 cursor-pointer group">
             <input
               name="published"
               type="checkbox"
               defaultChecked
-              className="h-4 w-4 rounded border border-pure-white/20 bg-pure-black accent-accent cursor-pointer"
+              className="h-4 w-4 rounded border border-ink/15 bg-pure-white accent-accent cursor-pointer"
             />
-            <span className="transition-colors group-hover:text-pure-white">Pubblicata</span>
+            <span className="transition-colors group-hover:text-ink">Pubblicata</span>
           </label>
           <label className="inline-flex items-center gap-3 cursor-pointer group">
             <input
               name="featured"
               type="checkbox"
-              className="h-4 w-4 rounded border border-pure-white/20 bg-pure-black accent-accent cursor-pointer"
+              className="h-4 w-4 rounded border border-ink/15 bg-pure-white accent-accent cursor-pointer"
             />
-            <span className="transition-colors group-hover:text-pure-white">In evidenza</span>
+            <span className="transition-colors group-hover:text-ink">In evidenza</span>
           </label>
         </div>
         <button
           type="submit"
           disabled={state === "uploading" || state === "saving"}
-          className="inline-flex min-h-12 items-center gap-3 rounded-full bg-accent px-6 py-3 text-sm uppercase tracking-[0.16em] text-pure-black transition hover:bg-pure-white hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] disabled:opacity-60"
+          className="inline-flex min-h-12 items-center gap-3 rounded-full bg-ink px-6 py-3 text-sm uppercase tracking-[0.16em] text-pure-white transition hover:bg-accent hover:shadow-[0_0_20px_rgba(201,168,124,0.15)] disabled:opacity-60"
         >
           {state === "done" ? <Check size={16} strokeWidth={1.5} /> : null}
           {state === "uploading"
@@ -213,7 +213,7 @@ export function AdminUploadForm() {
               : "Salva opera"}
         </button>
         {message ? (
-          <p className={`text-sm ${state === "error" ? "text-red-400" : state === "done" ? "text-accent" : "text-pure-white/50"}`}>
+          <p className={`text-sm ${state === "error" ? "text-red-400" : state === "done" ? "text-accent" : "text-ink/40"}`}>
             {message}
           </p>
         ) : null}

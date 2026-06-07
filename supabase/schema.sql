@@ -32,6 +32,13 @@ create table if not exists public.commission_requests (
 alter table public.artworks enable row level security;
 alter table public.commission_requests enable row level security;
 
+-- Privilegi di base per i ruoli pubblici. SERVONO oltre alla RLS: senza questi
+-- la lettura anon fallisce con "permission denied for table artworks".
+-- (La service role usata dall'admin bypassa comunque RLS e privilegi.)
+grant usage on schema public to anon, authenticated;
+grant select on public.artworks to anon, authenticated;
+grant insert on public.commission_requests to anon, authenticated;
+
 drop policy if exists "Public can read published artworks" on public.artworks;
 create policy "Public can read published artworks"
 on public.artworks

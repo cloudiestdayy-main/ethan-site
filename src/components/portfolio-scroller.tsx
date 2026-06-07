@@ -14,7 +14,17 @@ function getScrollDistance(container: HTMLDivElement) {
   return firstCard.offsetWidth + gap;
 }
 
-export function PortfolioScroller({ artworks }: { artworks: Artwork[] }) {
+export function PortfolioScroller({
+  artworks,
+  title = "Tavole e illustrazioni",
+  description,
+  id,
+}: {
+  artworks: Artwork[];
+  title?: string;
+  description?: string;
+  id?: string;
+}) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
 
@@ -36,14 +46,24 @@ export function PortfolioScroller({ artworks }: { artworks: Artwork[] }) {
   }
 
   return (
-    <div className="rounded-sm bg-paper-light p-5 text-ink shadow-[0_24px_80px_rgba(0,0,0,0.18)] md:p-8">
-      <div className="mb-6 flex items-end justify-between gap-4">
-        <h2 className="font-serif text-xl font-semibold tracking-tight text-ink md:text-2xl">
-          Tavole e illustrazioni
-        </h2>
+    <div
+      id={id}
+      className="scroll-mt-28 rounded-2xl bg-pure-white p-5 text-ink shadow-[0_8px_40px_rgba(0,0,0,0.06)] md:p-8"
+    >
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+        <div>
+          <h2 className="font-serif text-xl font-medium tracking-tight text-ink md:text-2xl">
+            {title}
+          </h2>
+          {description ? (
+            <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-ink/50">
+              {description}
+            </p>
+          ) : null}
+        </div>
         <Link
           href="/contact"
-          className="inline-flex items-center gap-1.5 text-[13px] font-medium text-[#5c5a54] transition-colors hover:text-ink"
+          className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-medium text-ink/40 transition-colors hover:text-ink"
         >
           Commissioni
           <ArrowUpRight size={14} strokeWidth={1.6} />
@@ -65,9 +85,9 @@ export function PortfolioScroller({ artworks }: { artworks: Artwork[] }) {
               className="w-[78vw] max-w-[420px] shrink-0 snap-start sm:w-[340px] lg:w-[380px]"
             >
               <Link href={`/portfolio/${artwork.slug}`} className="group block">
-                <div className="bg-[#e8e6e0] p-4 transition-colors duration-300 group-hover:bg-[#e0ddd6] md:p-6">
-                  <div className="relative bg-white p-3 shadow-sm md:p-4">
-                    <div className="relative aspect-[4/5] overflow-hidden bg-[#f5f5f0]">
+                <div className="rounded-xl bg-paper p-4 transition-colors duration-300 group-hover:bg-paper/80 md:p-6">
+                  <div className="relative rounded-lg bg-pure-white p-3 shadow-sm md:p-4">
+                    <div className="relative aspect-[4/5] overflow-hidden rounded-md bg-paper">
                       {imageUrl ? (
                         <Image
                           src={imageUrl}
@@ -78,16 +98,16 @@ export function PortfolioScroller({ artworks }: { artworks: Artwork[] }) {
                           className="object-contain transition-transform duration-500 group-hover:scale-[1.02]"
                         />
                       ) : (
-                        <div className="h-full w-full bg-[#e0ddd6]" />
+                        <div className="h-full w-full bg-paper" />
                       )}
                     </div>
                   </div>
                 </div>
                 <div className="mt-5">
-                  <h3 className="font-serif text-lg font-semibold leading-tight text-ink">
+                  <h3 className="font-serif text-lg font-medium leading-tight text-ink">
                     {artwork.title}
                   </h3>
-                  <p className="mt-1 text-[13px] leading-relaxed text-[#8a877e]">
+                  <p className="mt-1 text-[13px] leading-relaxed text-ink/40">
                     {artwork.category || "Manga"}
                     {artwork.year ? ` / ${artwork.year}` : ""}
                   </p>
@@ -99,7 +119,7 @@ export function PortfolioScroller({ artworks }: { artworks: Artwork[] }) {
       </div>
 
       <div className="mt-2 flex items-center justify-between gap-4">
-        <div className="relative h-px flex-1 bg-[#d6d3cc]">
+        <div className="relative h-px flex-1 bg-border-subtle">
           <div
             className="absolute left-0 top-0 h-full bg-ink transition-all duration-150"
             style={{ width: `${Math.max(5, progress * 100)}%` }}
@@ -110,17 +130,17 @@ export function PortfolioScroller({ artworks }: { artworks: Artwork[] }) {
             type="button"
             onClick={() => scrollGallery(-1)}
             aria-label="Opera precedente"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#c5c2b8] text-[#5c5a54] transition-all duration-300 hover:border-ink hover:text-ink"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 text-ink/40 transition-all duration-300 hover:border-ink hover:text-ink sm:h-9 sm:w-9"
           >
-            <ArrowLeft size={15} strokeWidth={1.8} />
+            <ArrowLeft size={16} strokeWidth={1.8} />
           </button>
           <button
             type="button"
             onClick={() => scrollGallery(1)}
             aria-label="Opera successiva"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#c5c2b8] text-[#5c5a54] transition-all duration-300 hover:border-ink hover:text-ink"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 text-ink/40 transition-all duration-300 hover:border-ink hover:text-ink sm:h-9 sm:w-9"
           >
-            <ArrowRight size={15} strokeWidth={1.8} />
+            <ArrowRight size={16} strokeWidth={1.8} />
           </button>
         </div>
       </div>

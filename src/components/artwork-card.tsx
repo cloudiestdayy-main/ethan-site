@@ -19,7 +19,7 @@ export function ArtworkCard({
     <div className="group grid-item">
       <Link href={`/portfolio/${artwork.slug}`} className="block">
         <article className="space-y-5">
-          <div className="relative overflow-hidden rounded-xl border border-white/10 bg-elevated">
+          <div className="relative overflow-hidden rounded-2xl border border-ink/8 bg-elevated">
             <div className="relative aspect-[3/4] overflow-hidden">
               {imageUrl ? (
                 <Image
@@ -31,7 +31,7 @@ export function ArtworkCard({
                   className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
                 />
               ) : (
-                <div className="h-full w-full bg-white/5" />
+                <div className="h-full w-full bg-paper" />
               )}
             </div>
           </div>
@@ -40,14 +40,14 @@ export function ArtworkCard({
               <p className="text-[11px] font-medium uppercase tracking-[0.08em] text-accent">
                 {artwork.category || "Manga"}
               </p>
-              <h3 className="mt-1 font-serif text-xl font-semibold leading-tight text-pure-white md:text-2xl">
+              <h3 className="mt-1 font-serif text-xl font-medium leading-tight text-ink md:text-2xl">
                 {artwork.title}
               </h3>
               {artwork.year ? (
-                <p className="mt-1 text-sm text-pure-white/40">{artwork.year}</p>
+                <p className="mt-1 text-sm text-ink/35">{artwork.year}</p>
               ) : null}
             </div>
-            <span className="mt-1 rounded-full border border-white/10 p-2 text-pure-white/60 transition-all duration-300 group-hover:border-accent group-hover:text-accent">
+            <span className="mt-1 rounded-full border border-ink/8 p-2 text-ink/35 transition-all duration-300 group-hover:border-accent group-hover:text-accent">
               <ArrowUpRight size={16} strokeWidth={2} />
             </span>
           </div>

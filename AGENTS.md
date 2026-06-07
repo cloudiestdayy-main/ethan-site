@@ -5,7 +5,7 @@
 > cosa funziona davvero, cosa è finto, e i prossimi passi.
 > Aggiorna questo file quando completi un blocco di lavoro.
 
-Ultimo aggiornamento: 2026-06-03
+Ultimo aggiornamento: 2026-06-07
 
 ---
 
@@ -138,8 +138,39 @@ supabase/schema.sql         # tabelle, RLS, bucket Storage
   `getServiceSupabaseConfig()` e gestisci il `null` (non assumere che Supabase ci sia).
 - **`server-only`**: `lib/artworks.ts` e `lib/admin.ts` sono server-only. Non importarli
   in componenti client. Per l'URL immagine lato client usa `lib/artworks-shared.ts`.
+- **Font**: l'`@import` di `globals.css` carica solo Cormorant Garamond + Manrope.
+  `--font-display` e `--font-serif` puntano entrambi a Cormorant; `Unbounded` è stato
+  rimosso di proposito. Se aggiungi un font, mettilo nell'`@import` PRIMA di
+  `@import "tailwindcss"` o il build dà warning.
 
 ## 8. Lavori completati di recente
+
+- **2026-06-07 — Redesign completo tema chiaro ispirato a Victoria Rose Park**: passaggio da dark cinematico a light minimal.
+  - Palette: sfondo `#faf9f7`, testo `#1a1a2e`, secondario `#676986`, accent oro `#c9a87c`, sezioni alternate su `#f4f4f6`.
+  - Tipografia: titoli serif più leggeri (`font-medium` invece di `font-semibold`), body Manrope mantenuto.
+  - Componenti pubblici ridisegnati: hero con overlay chiaro, plate con bordi sottili e ombre leggere, bottoni scuri o bordati.
+  - Portfolio scroller: card su sfondo bianco con cornice leggera, scrollbar mantenuta.
+  - Header trasparente che diventa bianco/traslucido allo scroll, menu mobile coerente.
+  - Footer con bordi sottili e colori scuri.
+  - Admin coerente con il tema chiaro (sfondo bianco, card su `#f4f4f6`, testo scuro).
+  - Noise overlay aumentato a `0.025` per visibilità su sfondo chiaro.
+  - `npm run lint` verde, `npm run build` verde.
+
+- **2026-06-07 — Affinamenti home "Soft Contrast + Ritmo"**: migliorata leggibilità e ritmo della home nel tema chiaro.
+  - Testi secondari più scuri: `/15`→`/25`, `/25`→`/40`, `/35`→`/45`, `/50`→`/60`.
+  - Ritmo cromatico regolare: Hero (bianco), Featured (paper), Collections (bianco), About (paper), Process (bianco), Commission (paper).
+  - Gradienti card Collections rinforzati (`from-pure-white/90 via-pure-white/50`) per leggibilità sempre garantita.
+  - Bordi e linee più visibili: `border-ink/8` e `bg-ink/8` → `/12`.
+  - Micro-interazioni: leggero `hover:-translate-y-1` su card Featured, Collections e Process.
+  - Hero overlay più deciso (`bg-pure-white/45`, gradiente e vignetta rinforzati) per maggiore presenza del titolo.
+  - `npm run lint` verde, `npm run build` verde.
+
+- **2026-06-04 — Fix regressione font del redesign**: il redesign aveva tolto
+  `Unbounded` dall'`@import` ma `--font-display` ci puntava ancora e diversi titoli
+  usano `font-display` (home "Tavole"/"Process", numeri 01/02/03, admin, footer,
+  empty-gallery) → cadevano sul sans di sistema, stonando col serif. Risolto puntando
+  `--font-display` a `"Cormorant Garamond"` in `globals.css` (un'unica modifica copre
+  tutti gli usi). `font-display` e `font-serif` ora coincidono — non re-introdurre Unbounded.
 
 - **2026-06-03 — Redesign completo "Inchiostro & Carta"**:
   - Nuova palette dark warm: nero morbido `#0a0a0a`, bianco caldo `#f0ece6`, oro antico `#c9a87c`.

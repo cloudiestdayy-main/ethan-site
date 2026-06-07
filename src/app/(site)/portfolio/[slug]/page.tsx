@@ -39,35 +39,35 @@ export default async function ArtworkDetailPage({ params }: PageProps) {
 
   return (
     <main className="min-h-screen">
-      <section className="bg-pure-black pb-24 pt-32 md:pt-40">
+      <section className="bg-pure-white pb-16 pt-24 md:pb-24 md:pt-40">
         <div className="mx-auto max-w-[1440px] px-5 md:px-10">
           <article className="grid gap-12 lg:grid-cols-[0.34fr_0.66fr]">
             <aside className="lg:sticky lg:top-32 lg:self-start">
               <Link
                 href="/portfolio"
-                className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-pure-white/40 transition-colors hover:text-accent"
+                className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-ink/35 transition-colors hover:text-accent"
               >
                 <ArrowLeft size={15} strokeWidth={1.5} /> Portfolio
               </Link>
               <p className="mt-8 text-[11px] uppercase tracking-[0.12em] text-accent">
                 {artwork.category || "Manga"}
               </p>
-              <h1 className="mt-4 font-serif text-4xl font-semibold leading-[0.95] text-pure-white md:text-5xl lg:text-6xl">
+              <h1 className="mt-4 font-serif text-4xl font-medium leading-[0.95] text-ink md:text-5xl lg:text-6xl">
                 {artwork.title}
               </h1>
               {artwork.year ? (
-                <p className="mt-6 text-sm text-pure-white/40">{artwork.year}</p>
+                <p className="mt-6 text-sm text-ink/30">{artwork.year}</p>
               ) : null}
               {artwork.description ? (
-                <p className="mt-8 max-w-md text-base leading-[1.8] text-pure-white/60">
+                <p className="mt-8 max-w-md text-base leading-[1.8] text-ink/50">
                   {artwork.description}
                 </p>
               ) : null}
-              <nav className="mt-12 flex flex-wrap gap-3">
+              <nav className="mt-10 flex flex-wrap gap-3 md:mt-12">
                 {previous ? (
                   <Link
                     href={`/portfolio/${previous.slug}`}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-[11px] uppercase tracking-[0.12em] text-pure-white transition-all hover:border-accent hover:text-accent"
+                    className="inline-flex items-center gap-2 rounded-full border border-ink/8 px-5 py-3 text-[11px] uppercase tracking-[0.12em] text-ink transition-all hover:border-accent hover:text-accent"
                   >
                     <ArrowLeft size={14} strokeWidth={1.5} /> Precedente
                   </Link>
@@ -75,14 +75,14 @@ export default async function ArtworkDetailPage({ params }: PageProps) {
                 {next ? (
                   <Link
                     href={`/portfolio/${next.slug}`}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-[11px] uppercase tracking-[0.12em] text-pure-white transition-all hover:border-accent hover:text-accent"
+                    className="inline-flex items-center gap-2 rounded-full border border-ink/8 px-5 py-3 text-[11px] uppercase tracking-[0.12em] text-ink transition-all hover:border-accent hover:text-accent"
                   >
                     Successiva <ArrowRight size={14} strokeWidth={1.5} />
                   </Link>
                 ) : null}
               </nav>
             </aside>
-            <div className="rounded-2xl border border-white/10 bg-elevated p-3 md:p-5">
+            <div className="rounded-2xl border border-ink/8 bg-paper p-2 md:p-5">
               {imageUrl ? (
                 <Image
                   src={imageUrl}
@@ -94,7 +94,7 @@ export default async function ArtworkDetailPage({ params }: PageProps) {
                   priority
                 />
               ) : (
-                <div className="min-h-[70vh] rounded-xl bg-white/5" />
+                <div className="min-h-[70vh] rounded-xl bg-ink/5" />
               )}
             </div>
           </article>

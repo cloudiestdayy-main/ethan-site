@@ -12,38 +12,39 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <main>
-      <section className="relative flex min-h-[70vh] items-end overflow-hidden pb-16 pt-32 md:min-h-[80vh] md:pb-24 md:pt-40">
+      <section className="relative flex min-h-[60vh] items-end overflow-hidden pb-12 pt-28 md:min-h-[80vh] md:pb-24 md:pt-40">
         <div className="absolute inset-0">
           <Image
             src="/images/portfolio/Pagina-29.png"
             alt="Studio"
             fill
+            priority
             className="object-cover"
             sizes="100vw"
           />
-          <div className="absolute inset-0 bg-pure-black/60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-pure-black via-pure-black/20 to-transparent" />
+          <div className="absolute inset-0 bg-pure-white/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-pure-white via-pure-white/20 to-transparent" />
         </div>
         <div className="relative z-10 mx-auto w-full max-w-[1440px] px-5 md:px-10">
           <Reveal>
-            <h1 className="max-w-3xl font-serif text-[clamp(3rem,7vw,7rem)] font-semibold leading-[0.9] text-pure-white">
+            <h1 className="max-w-3xl font-serif text-[clamp(3rem,7vw,7rem)] font-medium leading-[0.9] text-ink">
               Chi sono
             </h1>
           </Reveal>
         </div>
       </section>
 
-      <section className="border-t border-white/5 bg-pure-black py-20 md:py-32">
+      <section className="border-t border-ink/5 bg-pure-white py-16 md:py-32">
         <div className="mx-auto max-w-[1440px] px-5 md:px-10">
           <div className="grid gap-10 lg:grid-cols-[0.55fr_0.45fr] lg:items-start">
             <div className="relative overflow-hidden">
               <div className="clip-reveal">
                 <Image
-                  src="/images/portfolio/Pagina-20.png"
-                  alt="Tavola esempio"
+                  src="/images/artist/ethan-portrait.png"
+                  alt="Ritratto di Ethan"
                   width={800}
                   height={1067}
-                  className="aspect-[3/4] w-full rounded-xl object-cover"
+                  className="aspect-[3/4] w-full rounded-2xl object-cover"
                 />
               </div>
             </div>
@@ -55,12 +56,12 @@ export default function AboutPage() {
                 </p>
               </Reveal>
               <Reveal delay={0.3}>
-                <h2 className="mb-8 font-serif text-[clamp(1.75rem,3vw,2.75rem)] font-semibold leading-[1] text-pure-white">
+                <h2 className="mb-8 font-serif text-[clamp(1.75rem,3vw,2.75rem)] font-medium leading-[1] text-ink">
                   Segno, pausa, pagina
                 </h2>
               </Reveal>
               <Reveal delay={0.4}>
-                <p className="mb-6 text-base leading-[1.8] text-pure-white/60">
+                <p className="mb-6 text-base leading-[1.8] text-ink/50">
                   Mi chiamo Ethan e sono un artista italiano con una passione
                   viscerale per la cultura giapponese. Fin da bambino, i manga
                   hanno rappresentato per me non solo una forma di
@@ -69,7 +70,7 @@ export default function AboutPage() {
                 </p>
               </Reveal>
               <Reveal delay={0.5}>
-                <p className="mb-6 text-base leading-[1.8] text-pure-white/60">
+                <p className="mb-6 text-base leading-[1.8] text-ink/50">
                   Il mio viaggio artistico e&apos; iniziato con i primi
                   scarabocchi ispirati a Dragon Ball ed e&apos; proseguito
                   attraverso anni di studio approfondito delle tecniche
@@ -80,7 +81,7 @@ export default function AboutPage() {
                 </p>
               </Reveal>
               <Reveal delay={0.6}>
-                <p className="mb-10 text-base leading-[1.8] text-pure-white/60">
+                <p className="mb-10 text-base leading-[1.8] text-ink/50">
                   Oggi il mio lavoro fonde la precisione del tratto manga con la
                   ricchezza espressiva della tradizione artistica giapponese.
                 </p>
@@ -88,7 +89,7 @@ export default function AboutPage() {
               <Reveal delay={0.7}>
                 <Link
                   href="/contact"
-                  className="inline-flex items-center gap-3 rounded-full border border-accent bg-accent px-8 py-4 text-sm font-medium text-pure-black transition-all duration-300 hover:bg-pure-white hover:text-pure-black"
+                  className="inline-flex items-center gap-3 rounded-full border border-accent bg-accent px-8 py-4 text-sm font-medium text-pure-white transition-all duration-300 hover:bg-ink"
                 >
                   Parliamo di una commissione
                   <ArrowUpRight size={18} strokeWidth={1.5} />

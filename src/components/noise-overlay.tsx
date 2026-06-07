@@ -2,7 +2,7 @@
 
 export function NoiseOverlay() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-[9999] opacity-[0.012]">
+    <div className="pointer-events-none fixed inset-0 z-[9999] opacity-[0.025]">
       <svg className="h-full w-full">
         <filter id="noiseFilter">
           <feTurbulence

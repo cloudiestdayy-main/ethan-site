@@ -27,15 +27,25 @@ export async function getAdminSession() {
     return { configured: false, user: null, allowed: false };
   }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  return {
-    configured: true,
-    user,
-    allowed: isAllowedAdminEmail(user?.email),
-  };
+    return {
+      configured: true,
+      user,
+      allowed: isAllowedAdminEmail(user?.email),
+    };
+  } catch (error) {
+    // Supabase configured but unreachable / auth error: degrade to "logged out"
+    // instead of crashing the admin server component.
+    console.error(
+      "getAdminSession: auth.getUser failed",
+      error instanceof Error ? error.message : error,
+    );
+    return { configured: true, user: null, allowed: false };
+  }
 }
 
 export async function getAllArtworksForAdmin() {
