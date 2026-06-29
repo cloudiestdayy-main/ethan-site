@@ -5,7 +5,7 @@ import {
   createSupabaseAdminClient,
   createSupabaseServerClient,
 } from "@/lib/supabase/server";
-import type { Artwork } from "@/lib/supabase/types";
+import type { Artwork, CommissionRequest } from "@/lib/supabase/types";
 
 export function isAllowedAdminEmail(email: string | null | undefined) {
   if (!email) {
@@ -67,6 +67,31 @@ export async function getAllArtworksForAdmin() {
   }
 
   return (data || []) as Artwork[];
+}
+
+export type CommissionRequestsResult = {
+  ok: boolean;
+  requests: CommissionRequest[];
+};
+
+export async function getCommissionRequests(): Promise<CommissionRequestsResult> {
+  const supabase = createSupabaseAdminClient();
+
+  if (!supabase) {
+    return { ok: false, requests: [] };
+  }
+
+  const { data, error } = await supabase
+    .from("commission_requests")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Failed to load commission requests", error.message);
+    return { ok: false, requests: [] };
+  }
+
+  return { ok: true, requests: (data || []) as CommissionRequest[] };
 }
 
 export async function requireAdminForMutation() {

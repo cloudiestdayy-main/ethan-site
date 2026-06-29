@@ -1,6 +1,9 @@
 import "server-only";
 
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import {
+  createSupabaseServerClient,
+  createSupabaseStaticClient,
+} from "@/lib/supabase/server";
 import type { Artwork } from "@/lib/supabase/types";
 export { getArtworkImageUrl } from "@/lib/artworks-shared";
 
@@ -27,6 +30,32 @@ export async function getPublicArtworks(options?: { featured?: boolean }) {
   if (error) {
     console.error("Failed to load artworks", error.message);
     return [];
+  }
+
+  return (data || []) as Artwork[];
+}
+
+/**
+ * Cookieless variant of {@link getPublicArtworks} for build-time/static contexts
+ * (`generateStaticParams`, `sitemap`) where `cookies()` cannot be called.
+ */
+export async function getPublicArtworksStatic() {
+  const supabase = createSupabaseStaticClient();
+
+  if (!supabase) {
+    return [] as Artwork[];
+  }
+
+  const { data, error } = await supabase
+    .from("artworks")
+    .select("*")
+    .eq("published", true)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Failed to load artworks (static)", error.message);
+    return [] as Artwork[];
   }
 
   return (data || []) as Artwork[];

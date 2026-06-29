@@ -99,8 +99,9 @@ supabase/schema.sql         # tabelle, RLS, bucket Storage
 | `/portfolio` (area lavori) | ✅ Reale, legge da Supabase; layout scroller orizzontale con cornici grigie |
 | `/portfolio/[slug]` (dettaglio) | ✅ Reale (prev/next, metadata OG) |
 | `/contact` (form commissioni) | ✅ Reale (salva su DB + email opzionale) |
-| Admin: upload opere | ✅ Reale |
+| Admin: upload opere | ✅ Reale (drag&drop, anteprima, dimensioni live, step di stato) |
 | Admin: gestione opere (edit/delete/toggle/riordino) | ✅ Reale |
+| Admin: richieste commissione (lista/filtri/letta/archivia/elimina) | ✅ Reale (service role) |
 | Home "Opere in evidenza" | ✅ Reale, legge `featured = true` da Supabase (fallback ultime pubblicate) |
 | Home Stats / Testimonial / Blog | ✅ Rimossi dalla home; sostituiti con metodo + CTA commissioni |
 | Campo `category` | ✅ Codice/schema/form pronti (applicare SQL al DB remoto se già esistente) |
@@ -138,12 +139,28 @@ supabase/schema.sql         # tabelle, RLS, bucket Storage
   `getServiceSupabaseConfig()` e gestisci il `null` (non assumere che Supabase ci sia).
 - **`server-only`**: `lib/artworks.ts` e `lib/admin.ts` sono server-only. Non importarli
   in componenti client. Per l'URL immagine lato client usa `lib/artworks-shared.ts`.
-- **Font**: l'`@import` di `globals.css` carica solo Cormorant Garamond + Manrope.
-  `--font-display` e `--font-serif` puntano entrambi a Cormorant; `Unbounded` è stato
-  rimosso di proposito. Se aggiungi un font, mettilo nell'`@import` PRIMA di
-  `@import "tailwindcss"` o il build dà warning.
+- **Font**: caricati via `next/font/google` in `src/app/layout.tsx` (self-hosted, niente
+  render-blocking). Cormorant Garamond → var `--font-cormorant`, Manrope → `--font-manrope`,
+  applicate su `<html>`. In `globals.css` `--font-display`/`--font-serif` puntano a
+  `var(--font-cormorant)` e `--font-sans` a `var(--font-manrope)`. `Unbounded` rimosso di
+  proposito. Se aggiungi un font, importalo da `next/font/google`, NON con `@import` CSS.
 
 ## 8. Lavori completati di recente
+
+- **2026-06-29 — Hardening SEO/routing + pannello commissioni admin + UX upload**:
+  - SEO: aggiunti `src/app/sitemap.ts` (statiche + opere da Supabase via client cookieless
+    `getPublicArtworksStatic`), `robots.ts` (disallow `/admin /api /auth` + sitemap),
+    `icon.svg`, `opengraph-image.tsx` (OG 1200×630 dinamica), twitter card + JSON-LD
+    (WebSite/Person) in `layout.tsx`, `robots: noindex` su `/admin` e `/admin/login`,
+    `generateStaticParams` su `/portfolio/[slug]`, fix 404 (usava classi tema vecchio).
+  - Font: migrati da `@import` CSS a `next/font/google` (self-hosted, no render-blocking).
+  - Admin commissioni: `getCommissionRequests()` in `lib/admin.ts`,
+    route `PATCH/DELETE /api/admin/commission-requests/[id]`, componente
+    `AdminCommissionManager` (filtri per stato, segna letta/archivia/ripristina,
+    rispondi via mailto, elimina) e sezione in `admin/page.tsx` con badge "nuove".
+  - Upload: `AdminUploadForm` con drag&drop, validazione tipo/peso (max 20MB), anteprima
+    con info file + dimensioni live, rimozione, indicatore di stato a step.
+  - `npm run lint` verde, `npm run build` verde.
 
 - **2026-06-07 — Redesign completo tema chiaro ispirato a Victoria Rose Park**: passaggio da dark cinematico a light minimal.
   - Palette: sfondo `#faf9f7`, testo `#1a1a2e`, secondario `#676986`, accent oro `#c9a87c`, sezioni alternate su `#f4f4f6`.

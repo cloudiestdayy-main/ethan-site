@@ -1,14 +1,30 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminArtworkManager } from "@/components/admin-artwork-manager";
+import { AdminCommissionManager } from "@/components/admin-commission-manager";
 import { AdminUploadForm } from "@/components/admin-upload-form";
 import { SignOutButton } from "@/components/sign-out-button";
-import { getAdminSession, getAllArtworksForAdmin } from "@/lib/admin";
+import {
+  getAdminSession,
+  getAllArtworksForAdmin,
+  getCommissionRequests,
+} from "@/lib/admin";
+
+export const metadata = {
+  title: "Admin",
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminPage() {
   const session = await getAdminSession();
   if (session.configured && !session.user) redirect("/admin/login");
   const artworks = session.allowed ? await getAllArtworksForAdmin() : [];
+  const commissions = session.allowed
+    ? await getCommissionRequests()
+    : { ok: true, requests: [] };
+  const newCommissionCount = commissions.requests.filter(
+    (request) => request.status === "new",
+  ).length;
 
   return (
     <main className="min-h-screen bg-pure-white px-5 py-8 md:px-10">
@@ -53,6 +69,26 @@ export default async function AdminPage() {
                   .map((artwork) => `${artwork.id}:${artwork.sort_order}:${artwork.image_width || 0}:${artwork.image_height || 0}`)
                   .join("|")}
                 artworks={artworks}
+              />
+            </section>
+            <section className="rounded-[20px] bg-paper p-6 md:p-10">
+              <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-accent">Posta in arrivo</p>
+                  <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Richieste di commissione</h2>
+                </div>
+                {newCommissionCount ? (
+                  <span className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-4 py-2 text-xs uppercase tracking-[0.16em] text-accent">
+                    {newCommissionCount} {newCommissionCount === 1 ? "nuova" : "nuove"}
+                  </span>
+                ) : null}
+              </div>
+              <AdminCommissionManager
+                key={commissions.requests
+                  .map((request) => `${request.id}:${request.status}`)
+                  .join("|")}
+                requests={commissions.requests}
+                loadOk={commissions.ok}
               />
             </section>
           </div>

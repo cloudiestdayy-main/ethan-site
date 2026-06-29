@@ -3,11 +3,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { getArtworkBySlug, getArtworkImageUrl, getPublicArtworks } from "@/lib/artworks";
+import {
+  getArtworkBySlug,
+  getArtworkImageUrl,
+  getPublicArtworks,
+  getPublicArtworksStatic,
+} from "@/lib/artworks";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
 export const revalidate = 60;
+
+export async function generateStaticParams() {
+  const artworks = await getPublicArtworksStatic();
+  return artworks.map((artwork) => ({ slug: artwork.slug }));
+}
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;

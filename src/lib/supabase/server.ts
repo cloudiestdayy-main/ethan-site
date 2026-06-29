@@ -30,6 +30,26 @@ export async function createSupabaseServerClient() {
   });
 }
 
+/**
+ * Cookieless anon client for build-time/static reads (e.g. `generateStaticParams`,
+ * `sitemap`), where `cookies()` is unavailable. RLS still limits anon to
+ * `published = true` rows, so this is safe for public data only.
+ */
+export function createSupabaseStaticClient() {
+  const config = getPublicSupabaseConfig();
+
+  if (!config) {
+    return null;
+  }
+
+  return createClient(config.url, config.anonKey, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
 export function createSupabaseAdminClient() {
   const config = getServiceSupabaseConfig();
 
