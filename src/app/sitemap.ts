@@ -1,7 +1,9 @@
 import type { MetadataRoute } from "next";
 import { getPublicArtworksStatic } from "@/lib/artworks";
 
-export const revalidate = 3600;
+// Always compute fresh from Supabase so newly published artworks appear right
+// away, instead of being frozen at build time (when the DB read can be empty).
+export const dynamic = "force-dynamic";
 
 function getBaseUrl() {
   return (
