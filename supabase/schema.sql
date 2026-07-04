@@ -34,10 +34,21 @@ alter table public.commission_requests enable row level security;
 
 -- Privilegi di base per i ruoli pubblici. SERVONO oltre alla RLS: senza questi
 -- la lettura anon fallisce con "permission denied for table artworks".
--- (La service role usata dall'admin bypassa comunque RLS e privilegi.)
 grant usage on schema public to anon, authenticated;
 grant select on public.artworks to anon, authenticated;
 grant insert on public.commission_requests to anon, authenticated;
+
+-- Privilegi della service role (usata da TUTTE le mutazioni admin).
+-- La service role bypassa la RLS ma NON i privilegi SQL: il restore di un
+-- progetto in pausa puo' perderli (visto succedere: "permission denied for
+-- table artworks" con hint di GRANT), quindi vanno riaffermati qui.
+grant usage on schema public to service_role;
+grant all on public.artworks to service_role;
+grant all on public.commission_requests to service_role;
+
+-- E per le tabelle future create dall'editor SQL (ruolo postgres):
+alter default privileges in schema public
+  grant all on tables to service_role;
 
 drop policy if exists "Public can read published artworks" on public.artworks;
 create policy "Public can read published artworks"
@@ -95,8 +106,10 @@ create table if not exists public.site_settings (
 
 alter table public.site_settings enable row level security;
 
--- Come per artworks: il grant serve oltre alla RLS per la lettura anon.
+-- Come per artworks: il grant serve oltre alla RLS per la lettura anon,
+-- e la service role (scritture admin) ha bisogno dei privilegi espliciti.
 grant select on public.site_settings to anon, authenticated;
+grant all on public.site_settings to service_role;
 
 drop policy if exists "Public can read site settings" on public.site_settings;
 create policy "Public can read site settings"
