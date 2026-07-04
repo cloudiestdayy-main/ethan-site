@@ -4,23 +4,26 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Mail, Menu, Search, UserRound, X } from "lucide-react";
+import { SearchOverlay } from "@/components/search-overlay";
 
 const navItems = [
+  { href: "/", label: "Home" },
   { href: "/portfolio", label: "I miei lavori" },
   { href: "/about", label: "Chi sono" },
-  { href: "/contact", label: "Commissioni" },
+  { href: "/contact", label: "Contatti" },
 ];
 
 const actionItems = [
-  { href: "/portfolio", label: "Cerca opere", Icon: Search },
   { href: "/admin/login", label: "Area admin", Icon: UserRound },
   { href: "/contact", label: "Scrivi", Icon: Mail },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ announcement = "" }: { announcement?: string }) {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
+  const announcementText = announcement.trim();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -28,34 +31,48 @@ export function SiteHeader() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    document.body.style.overflow = menuOpen || searchOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [menuOpen, searchOpen]);
+
+  function toggleMenu() {
+    setSearchOpen(false);
+    setMenuOpen((open) => !open);
+  }
+
+  function openSearch() {
+    setMenuOpen(false);
+    setSearchOpen(true);
+  }
+
   return (
     <>
       <header
         className={`site-header-enter fixed inset-x-0 top-0 z-50 transition-all duration-700 ${
-          scrolled
+          scrolled || menuOpen
             ? "border-b border-ink/5 bg-pure-white/85 backdrop-blur-xl"
             : "bg-transparent"
         }`}
       >
-        <nav className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-4 md:grid md:grid-cols-[1fr_auto_1fr] md:py-5 md:px-10">
-          <div className="hidden items-center gap-8 md:flex">
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`relative text-[14px] font-medium tracking-[0.02em] transition-colors duration-300 hover:text-accent ${
-                  pathname === item.href
-                    ? "text-ink"
-                    : "text-ink/60"
-                }`}
-              >
-                {item.label}
-                {pathname === item.href && (
-                  <span className="absolute -bottom-1 left-0 h-px w-full bg-accent" />
-                )}
-              </Link>
-            ))}
-          </div>
+        {announcementText ? (
+          <p className="truncate bg-ink px-5 py-2 text-center text-[12px] font-medium tracking-[0.04em] text-pure-white">
+            {announcementText}
+          </p>
+        ) : null}
+
+        <nav className="mx-auto grid max-w-[1440px] grid-cols-[1fr_auto_1fr] items-center px-5 py-4 md:px-10 md:py-5">
+          <button
+            type="button"
+            onClick={openSearch}
+            aria-label="Cerca opere"
+            title="Cerca opere"
+            className="inline-flex h-10 w-10 items-center justify-center justify-self-start rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent hover:text-accent"
+          >
+            <Search size={18} strokeWidth={1.5} />
+          </button>
 
           <Link
             href="/"
@@ -65,24 +82,11 @@ export function SiteHeader() {
             ED
           </Link>
 
-          <div className="hidden items-center justify-end gap-3 md:flex">
-            {actionItems.map(({ href, label, Icon }) => (
-              <Link
-                key={label}
-                href={href}
-                aria-label={label}
-                title={label}
-                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent hover:text-accent"
-              >
-                <Icon size={20} strokeWidth={1.5} />
-              </Link>
-            ))}
-          </div>
-
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="relative flex h-10 w-10 items-center justify-center justify-self-end rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent hover:text-accent md:hidden"
-            aria-label="Toggle menu"
+            onClick={toggleMenu}
+            className="relative flex h-10 w-10 items-center justify-center justify-self-end rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent hover:text-accent"
+            aria-label="Apri o chiudi il menu"
+            aria-expanded={menuOpen}
           >
             <span className="relative h-5 w-5">
               <Menu
@@ -107,7 +111,7 @@ export function SiteHeader() {
       </header>
 
       <div
-        className={`fixed inset-0 z-40 bg-pure-white/98 backdrop-blur-2xl transition-all duration-700 md:hidden ${
+        className={`fixed inset-0 z-40 bg-pure-white/98 backdrop-blur-2xl transition-all duration-700 ${
           menuOpen ? "visible opacity-100" : "invisible opacity-0"
         }`}
       >
@@ -154,6 +158,8 @@ export function SiteHeader() {
           </div>
         </div>
       </div>
+
+      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
     </>
   );
 }

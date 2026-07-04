@@ -8,6 +8,7 @@ import { slugify } from "@/lib/slug";
 const artworkSchema = z.object({
   title: z.string().trim().min(2),
   category: z.string().trim().max(80).optional().nullable(),
+  kind: z.enum(["tavola", "illustrazione"]).default("tavola"),
   description: z.string().trim().optional().nullable(),
   year: z.coerce.number().int().min(1900).max(2100).optional().nullable(),
   image_path: z.string().trim().min(3),
@@ -21,6 +22,7 @@ type ArtworkInsertPayload = {
   title: string;
   slug: string;
   category: string | null;
+  kind: "tavola" | "illustrazione";
   description: string | null;
   year: number | null;
   image_path: string;
@@ -30,7 +32,7 @@ type ArtworkInsertPayload = {
   published: boolean;
 };
 
-const optionalMetadataColumns = ["category", "image_width", "image_height"];
+const optionalMetadataColumns = ["category", "kind", "image_width", "image_height"];
 
 export async function POST(request: Request) {
   const admin = await requireAdminForMutation();
@@ -60,6 +62,7 @@ export async function POST(request: Request) {
     title: parsed.data.title,
     slug,
     category: parsed.data.category || null,
+    kind: parsed.data.kind,
     description: parsed.data.description || null,
     year: parsed.data.year || null,
     image_path: parsed.data.image_path,
@@ -102,6 +105,7 @@ export async function POST(request: Request) {
 
   revalidatePath("/");
   revalidatePath("/portfolio");
+  revalidatePath("/api/search-index");
 
   return NextResponse.json({ artwork: insertResult.data });
 }

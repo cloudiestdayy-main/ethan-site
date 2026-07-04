@@ -1,5 +1,6 @@
 import "server-only";
 
+import { normalizeArtworks } from "@/lib/artwork-kinds";
 import { getAdminEmails, isSupabaseConfigured } from "@/lib/env";
 import {
   createSupabaseAdminClient,
@@ -66,7 +67,7 @@ export async function getAllArtworksForAdmin() {
     return [];
   }
 
-  return (data || []) as Artwork[];
+  return normalizeArtworks((data || []) as Artwork[]);
 }
 
 export type CommissionRequestsResult = {

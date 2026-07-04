@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AdminArtworkManager } from "@/components/admin-artwork-manager";
 import { AdminCommissionManager } from "@/components/admin-commission-manager";
+import { AdminSettingsManager } from "@/components/admin-settings-manager";
 import { AdminUploadForm } from "@/components/admin-upload-form";
 import { SignOutButton } from "@/components/sign-out-button";
 import {
@@ -9,6 +10,9 @@ import {
   getAllArtworksForAdmin,
   getCommissionRequests,
 } from "@/lib/admin";
+import { collectCategories } from "@/lib/categories";
+import { DEFAULT_SITE_SETTINGS } from "@/lib/settings-shared";
+import { getSiteSettings } from "@/lib/settings";
 
 export const metadata = {
   title: "Admin",
@@ -22,6 +26,9 @@ export default async function AdminPage() {
   const commissions = session.allowed
     ? await getCommissionRequests()
     : { ok: true, requests: [] };
+  const settings = session.allowed
+    ? await getSiteSettings()
+    : { ...DEFAULT_SITE_SETTINGS };
   const newCommissionCount = commissions.requests.filter(
     (request) => request.status === "new",
   ).length;
@@ -52,10 +59,24 @@ export default async function AdminPage() {
           <div className="mt-12 grid gap-12">
             <section className="rounded-[20px] bg-paper p-6 md:p-10">
               <div className="mb-10">
+                <p className="text-xs uppercase tracking-[0.2em] text-accent">Testi del sito</p>
+                <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Contenuti sito</h2>
+              </div>
+              <AdminSettingsManager
+                key={`${settings.announcement_text}|${settings.hero_title}|${settings.hero_subtitle}`}
+                settings={settings}
+              />
+            </section>
+            <section className="rounded-[20px] bg-paper p-6 md:p-10">
+              <div className="mb-10">
                 <p className="text-xs uppercase tracking-[0.2em] text-accent">Nuova opera</p>
                 <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Carica una tavola</h2>
               </div>
-              <AdminUploadForm />
+              <AdminUploadForm
+                categories={collectCategories(
+                  artworks.map((artwork) => artwork.category),
+                )}
+              />
             </section>
             <section className="rounded-[20px] bg-paper p-6 md:p-10">
               <div className="mb-10 flex flex-wrap items-end justify-between gap-4">

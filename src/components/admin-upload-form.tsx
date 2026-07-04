@@ -11,6 +11,10 @@ import {
 import { useRouter } from "next/navigation";
 import { Check, ImageUp, LoaderCircle, Sparkles, X } from "lucide-react";
 import {
+  AdminCategoryField,
+  resolveCategoryFields,
+} from "@/components/admin-category-field";
+import {
   readClientImageDimensions,
   type ImageDimensions,
 } from "@/lib/client-image-dimensions";
@@ -32,7 +36,7 @@ const STEPS: { key: UploadState; label: string }[] = [
   { key: "done", label: "Fatto" },
 ];
 
-export function AdminUploadForm() {
+export function AdminUploadForm({ categories }: { categories: string[] }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [file, setFile] = useState<File | null>(null);
@@ -41,6 +45,8 @@ export function AdminUploadForm() {
   const [dragActive, setDragActive] = useState(false);
   const [state, setState] = useState<UploadState>("idle");
   const [message, setMessage] = useState("");
+  // Rimonta il selettore categoria dopo un salvataggio (reset dello stato "nuova").
+  const [formVersion, setFormVersion] = useState(0);
   const isWorking = state === "uploading" || state === "saving";
 
   useEffect(() => {
@@ -151,7 +157,8 @@ export function AdminUploadForm() {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         title: form.get("title"),
-        category: form.get("category") || null,
+        category: resolveCategoryFields(form),
+        kind: form.get("kind") || "tavola",
         description: form.get("description"),
         year: form.get("year") || null,
         image_path: uploadData.path,
@@ -170,6 +177,7 @@ export function AdminUploadForm() {
 
     formRef.current?.reset();
     clearFile();
+    setFormVersion((version) => version + 1);
     setState("done");
     setMessage("Opera salvata e pubblicata nell'archivio.");
     router.refresh();
@@ -266,16 +274,25 @@ export function AdminUploadForm() {
             className="mt-2 w-full border-b border-ink/10 bg-transparent py-4 text-lg text-ink placeholder:text-ink/20 outline-none transition focus:border-accent"
           />
         </label>
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-5 md:grid-cols-3">
           <label className="block">
             <span className="text-xs uppercase tracking-[0.18em] text-ink/40">
-              Categoria
+              Tipo
             </span>
-            <input
-              name="category"
-              placeholder="Manga, character design..."
-              className="mt-2 w-full border-b border-ink/10 bg-transparent py-4 text-lg text-ink placeholder:text-ink/20 outline-none transition focus:border-accent"
-            />
+            <select
+              name="kind"
+              defaultValue="tavola"
+              className="mt-2 w-full cursor-pointer border-b border-ink/10 bg-transparent py-4 text-lg text-ink outline-none transition focus:border-accent"
+            >
+              <option value="tavola">Tavola</option>
+              <option value="illustrazione">Illustrazione</option>
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs uppercase tracking-[0.18em] text-ink/40">
+              Categoria (collezione)
+            </span>
+            <AdminCategoryField key={formVersion} categories={categories} />
           </label>
           <label className="block">
             <span className="text-xs uppercase tracking-[0.18em] text-ink/40">

@@ -1,9 +1,12 @@
+export type ArtworkKind = "tavola" | "illustrazione";
+
 export type Artwork = {
   id: string;
   title: string;
   slug: string;
   description: string | null;
   category: string | null;
+  kind: ArtworkKind;
   year: number | null;
   image_path: string;
   image_width: number | null;
@@ -11,6 +14,7 @@ export type Artwork = {
   featured: boolean;
   published: boolean;
   sort_order: number;
+  view_count: number;
   created_at: string;
 };
 
@@ -21,4 +25,10 @@ export type CommissionRequest = {
   message: string;
   status: "new" | "read" | "archived";
   created_at: string;
+};
+
+export type SiteSettingRow = {
+  key: string;
+  value: string;
+  updated_at: string;
 };

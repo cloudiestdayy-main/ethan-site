@@ -11,6 +11,7 @@ type RouteContext = {
 type ArtworkUpdatePayload = {
   title?: string;
   category?: string | null;
+  kind?: "tavola" | "illustrazione";
   description?: string | null;
   year?: number | null;
   image_path?: string;
@@ -25,6 +26,7 @@ const artworkUpdateSchema = z
   .object({
     title: z.string().trim().min(2).optional(),
     category: z.string().trim().max(80).optional().nullable(),
+    kind: z.enum(["tavola", "illustrazione"]).optional(),
     description: z.string().trim().optional().nullable(),
     year: z.coerce.number().int().min(1900).max(2100).optional().nullable(),
     image_path: z.string().trim().min(3).optional(),
@@ -36,7 +38,7 @@ const artworkUpdateSchema = z
   })
   .refine((value) => Object.keys(value).length > 0);
 
-const optionalMetadataColumns = ["category", "image_width", "image_height"];
+const optionalMetadataColumns = ["category", "kind", "image_width", "image_height"];
 
 function shouldRetryWithoutOptionalMetadata(message: string) {
   const normalized = message.toLowerCase();
@@ -48,6 +50,7 @@ function toUpdatePayload(data: z.infer<typeof artworkUpdateSchema>): ArtworkUpda
 
   if ("title" in data) payload.title = data.title;
   if ("category" in data) payload.category = data.category || null;
+  if (data.kind) payload.kind = data.kind;
   if ("description" in data) payload.description = data.description || null;
   if ("year" in data) payload.year = data.year || null;
   if ("image_path" in data && data.image_path) payload.image_path = data.image_path;
@@ -75,6 +78,7 @@ function withoutOptionalMetadata(payload: ArtworkUpdatePayload) {
 function revalidateArtworkPages(slug: string | null | undefined) {
   revalidatePath("/");
   revalidatePath("/portfolio");
+  revalidatePath("/api/search-index");
   if (slug) revalidatePath(`/portfolio/${slug}`);
 }
 

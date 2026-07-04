@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArtworkViewTracker } from "@/components/artwork-view-tracker";
+import { KIND_LABELS } from "@/lib/artwork-kinds";
 import {
   getArtworkBySlug,
   getArtworkImageUrl,
@@ -40,27 +42,33 @@ export default async function ArtworkDetailPage({ params }: PageProps) {
   if (!artwork) notFound();
 
   const imageUrl = getArtworkImageUrl(artwork.image_path);
-  const currentIndex = artworks.findIndex((item) => item.slug === artwork.slug);
-  const previous = currentIndex > 0 ? artworks[currentIndex - 1] : null;
+  const kindLabels = KIND_LABELS[artwork.kind];
+  // Prev/next restano dentro lo stesso tipo: tavole e illustrazioni
+  // sono archivi separati anche nella navigazione di dettaglio.
+  const sameKind = artworks.filter((item) => item.kind === artwork.kind);
+  const currentIndex = sameKind.findIndex((item) => item.slug === artwork.slug);
+  const previous = currentIndex > 0 ? sameKind[currentIndex - 1] : null;
   const next =
-    currentIndex >= 0 && currentIndex < artworks.length - 1
-      ? artworks[currentIndex + 1]
+    currentIndex >= 0 && currentIndex < sameKind.length - 1
+      ? sameKind[currentIndex + 1]
       : null;
 
   return (
     <main className="min-h-screen">
-      <section className="bg-pure-white pb-16 pt-24 md:pb-24 md:pt-40">
+      <ArtworkViewTracker slug={artwork.slug} />
+      <section className="bg-pure-white pb-16 pt-28 md:pb-24 md:pt-40">
         <div className="mx-auto max-w-[1440px] px-5 md:px-10">
           <article className="grid gap-12 lg:grid-cols-[0.34fr_0.66fr]">
             <aside className="lg:sticky lg:top-32 lg:self-start">
               <Link
-                href="/portfolio"
+                href={`/portfolio?tab=${kindLabels.tabSlug}`}
                 className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-ink/35 transition-colors hover:text-accent"
               >
-                <ArrowLeft size={15} strokeWidth={1.5} /> Portfolio
+                <ArrowLeft size={15} strokeWidth={1.5} /> I miei lavori
               </Link>
               <p className="mt-8 text-[11px] uppercase tracking-[0.12em] text-accent">
-                {artwork.category || "Manga"}
+                {kindLabels.singular}
+                {artwork.category ? ` · ${artwork.category}` : ""}
               </p>
               <h1 className="mt-4 font-serif text-4xl font-medium leading-[0.95] text-ink md:text-5xl lg:text-6xl">
                 {artwork.title}

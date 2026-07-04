@@ -148,6 +148,16 @@ body {
   border-radius: 999px;
 }
 
+/* Scrollbar nascosta per i track swipe-only (tab e caroselli teaser) */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Selection */
 ::selection {
   background: #1a1a2e;

@@ -1,24 +1,44 @@
 import type { Metadata } from "next";
 import { EmptyGallery } from "@/components/empty-gallery";
-import { PortfolioScroller } from "@/components/portfolio-scroller";
+import {
+  PortfolioKindTabs,
+  type KindTab,
+} from "@/components/portfolio-kind-tabs";
 import { Reveal } from "@/components/reveal";
+import { splitByKind, tabSlugToKind } from "@/lib/artwork-kinds";
 import { getPublicArtworks } from "@/lib/artworks";
-import { getCollectionCopy, groupArtworksByCollection } from "@/lib/collections";
+import { groupArtworksByCollection } from "@/lib/collections";
 
 export const metadata: Metadata = {
-  title: "Portfolio",
-  description: "Archivio delle tavole manga di Ethan.",
+  title: "I miei lavori",
+  description:
+    "Tavole e illustrazioni di Ethan, divise per tipo e raccolte in collezioni.",
 };
 
 export const revalidate = 60;
 
-export default async function PortfolioPage() {
-  const artworks = await getPublicArtworks();
-  const collections = groupArtworksByCollection(artworks);
+type PageProps = {
+  searchParams: Promise<{ tab?: string }>;
+};
+
+export default async function PortfolioPage({ searchParams }: PageProps) {
+  const [{ tab }, artworks] = await Promise.all([
+    searchParams,
+    getPublicArtworks(),
+  ]);
+  const { tavole, illustrazioni } = splitByKind(artworks);
+  const initialKind = tabSlugToKind(tab) ?? "tavola";
+  const tabs: KindTab[] = [
+    { kind: "tavola", collections: groupArtworksByCollection(tavole) },
+    {
+      kind: "illustrazione",
+      collections: groupArtworksByCollection(illustrazioni),
+    },
+  ];
 
   return (
     <main>
-      <section className="border-b border-ink/5 bg-pure-white py-24 md:py-40">
+      <section className="border-b border-ink/5 bg-pure-white pb-24 pt-28 md:py-40">
         <div className="mx-auto max-w-[1440px] px-5 md:px-10">
           <Reveal>
             <div className="line-accent mb-6" />
@@ -26,11 +46,12 @@ export default async function PortfolioPage() {
               Archivio
             </p>
             <h1 className="mb-8 font-serif text-[clamp(2.5rem,6vw,6rem)] font-medium leading-[0.9] text-ink">
-              Portfolio
+              I miei lavori
             </h1>
             <p className="max-w-xl text-base leading-[1.8] text-ink/50">
-              Una selezione di tavole presentate con crop editoriali, ritmo
-              irregolare e spazio sufficiente per lasciar respirare il segno.
+              Tavole e illustrazioni vivono in due archivi separati: passa da un
+              tipo all&apos;altro con i tab (o con uno swipe) e sfoglia le
+              collezioni con calma.
             </p>
           </Reveal>
         </div>
@@ -38,18 +59,8 @@ export default async function PortfolioPage() {
 
       <section className="bg-paper py-12 md:py-24">
         <div className="mx-auto max-w-[1440px] px-4 md:px-10">
-          {collections.length ? (
-            <div className="space-y-10 md:space-y-16">
-              {collections.map((collection) => (
-                <PortfolioScroller
-                  key={collection.slug}
-                  id={collection.slug}
-                  title={collection.category}
-                  description={getCollectionCopy(collection.slug).description}
-                  artworks={collection.artworks}
-                />
-              ))}
-            </div>
+          {artworks.length ? (
+            <PortfolioKindTabs initialKind={initialKind} tabs={tabs} />
           ) : (
             <EmptyGallery />
           )}

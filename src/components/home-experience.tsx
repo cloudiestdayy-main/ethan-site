@@ -4,55 +4,43 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ArrowUpRight, Send } from "lucide-react";
+import { EmptyGallery } from "@/components/empty-gallery";
+import { PortfolioScroller } from "@/components/portfolio-scroller";
 import { Reveal } from "@/components/reveal";
+import { KIND_LABELS } from "@/lib/artwork-kinds";
 import { getArtworkImageUrl } from "@/lib/artworks-shared";
-import { getCollectionCopy, type Collection } from "@/lib/collections";
-import type { Artwork } from "@/lib/supabase/types";
+import type { Artwork, ArtworkKind } from "@/lib/supabase/types";
 
-const COLLECTION_FALLBACK_IMAGES = [
-  "/images/portfolio/Pagina-2.png",
-  "/images/portfolio/Pagina-13.png",
-  "/images/portfolio/Pagina-17.png",
-  "/images/portfolio/Pagina-20.png",
-  "/images/portfolio/Pagina-29.png",
-];
+export type HomeHeroContent = {
+  title: string;
+  subtitle: string;
+};
 
-const processSteps = [
-  {
-    step: "01",
-    title: "Schizzo",
-    text: "La composizione nasce a matita: layout, pose e ritmo della tavola.",
-    image: "/images/process/01-schizzo.png",
-  },
-  {
-    step: "02",
-    title: "China",
-    text: "Il segno viene ripassato a china, definendo contrasti e profondità.",
-    image: "/images/process/02-china.png",
-  },
-  {
-    step: "03",
-    title: "Finale",
-    text: "Rifiniture, retini o colore: la tavola è pronta per stampa o digitale.",
-    image: "/images/process/03-finale.png",
-  },
-];
+export type KindPanelData = {
+  count: number;
+  cover: string | null;
+};
+
+export type HomeKindPanels = {
+  tavola: KindPanelData;
+  illustrazione: KindPanelData;
+};
+
+const KIND_FALLBACK_IMAGES: Record<ArtworkKind, string> = {
+  tavola: "/images/portfolio/Pagina-2.png",
+  illustrazione: "/images/portfolio/Pagina-17.png",
+};
 
 function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-function artworkSrc(artwork: Artwork, fallbackIndex = 0) {
-  return (
-    getArtworkImageUrl(artwork.image_path) ??
-    COLLECTION_FALLBACK_IMAGES[fallbackIndex % COLLECTION_FALLBACK_IMAGES.length]
-  );
-}
-
 /* ----------------------------------------------------------------- Hero -- */
 
-function HeroSection() {
+function HeroSection({ title, subtitle }: HomeHeroContent) {
   const [loaded, setLoaded] = useState(false);
+  const heroTitle = title.trim();
+  const heroSubtitle = subtitle.trim();
 
   useEffect(() => {
     const timer = window.setTimeout(() => setLoaded(true), 120);
@@ -81,19 +69,19 @@ function HeroSection() {
             loaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
           }`}
         >
-          <p className="mb-8 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.22em] text-text-secondary">
-            <span className="h-px w-7 bg-text-secondary/40" />
-            Tavole e illustrazioni originali
-            <span className="h-px w-7 bg-text-secondary/40" />
-          </p>
+          {heroTitle ? (
+            <h1 className="font-serif text-[clamp(2.75rem,8.5vw,8rem)] font-medium leading-[0.9] tracking-[-0.01em] text-ink">
+              {heroTitle}
+            </h1>
+          ) : (
+            <h1 className="sr-only">Ethan&apos;s Drawings</h1>
+          )}
 
-          <h1 className="font-serif text-[clamp(3rem,11vw,11rem)] font-medium leading-[0.85] tracking-[-0.01em] text-ink">
-            Ethan&apos;s <span className="italic">Drawings</span>
-          </h1>
-
-          <p className="mt-6 max-w-xl font-serif text-lg italic leading-relaxed text-ink/60 md:mt-8 md:text-2xl">
-            Un archivio visivo di storie, personaggi e commissioni.
-          </p>
+          {heroSubtitle ? (
+            <p className="mt-6 max-w-xl font-serif text-lg italic leading-relaxed text-ink/60 md:mt-8 md:text-2xl">
+              {heroSubtitle}
+            </p>
+          ) : null}
 
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
@@ -117,7 +105,7 @@ function HeroSection() {
       </div>
 
       <a
-        href="#lavori"
+        href="#piu-visti"
         className={`absolute bottom-9 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 transition-all duration-1000 md:flex ${
           loaded ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
         }`}
@@ -134,35 +122,29 @@ function HeroSection() {
   );
 }
 
-/* ------------------------------------------------------------ Selected -- */
+/* ---------------------------------------------------------- Most viewed -- */
 
-function FeaturedSection({
+function MostViewedSection({
   artworks,
-  label,
+  isFallback,
 }: {
   artworks: Artwork[];
-  label: string;
+  isFallback: boolean;
 }) {
-  if (!artworks.length) {
-    return <FeaturedEmptyState label={label} />;
-  }
-
-  const [lead, ...rest] = artworks;
-
   return (
     <section
-      id="lavori"
-      className="relative overflow-hidden border-t border-ink/5 bg-paper py-16 md:py-36"
+      id="piu-visti"
+      className="scroll-mt-24 border-t border-ink/5 bg-paper py-16 md:py-36"
     >
       <div className="mx-auto max-w-[1500px] px-5 md:px-16">
         <Reveal>
           <div className="flex items-end justify-between gap-6">
             <div>
               <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-accent">
-                {label}
+                {isFallback ? "Una selezione dall'archivio" : "Le opere più amate"}
               </p>
               <h2 className="font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[0.9] tracking-[-0.01em] text-ink">
-                Lavori scelti
+                I più visti
               </h2>
             </div>
             <Link
@@ -178,161 +160,29 @@ function FeaturedSection({
           </div>
         </Reveal>
 
-        <div className="mt-16 grid gap-10 lg:grid-cols-12 lg:gap-12">
-          {/* lead piece */}
-          <Reveal className="lg:col-span-7">
-            <Link href={`/portfolio/${lead.slug}`} className="group block">
-              <div className="plate group overflow-hidden rounded-2xl p-3 transition-transform duration-500 hover:-translate-y-1 md:p-4">
-                <div className="relative aspect-[5/4] overflow-hidden rounded-xl">
-                  <Image
-                    src={artworkSrc(lead, 0)}
-                    alt={lead.title}
-                    fill
-                    priority
-                    sizes="(min-width: 1024px) 56vw, 92vw"
-                    className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
-                  />
-                </div>
-              </div>
-              <div className="mt-6 flex items-start justify-between gap-6 border-t border-ink/12 pt-5">
-                <div className="flex gap-5">
-                  <span className="editorial-index text-2xl text-ink/25">
-                    {pad(1)}
-                  </span>
-                  <div>
-                    <h3 className="font-serif text-2xl font-medium leading-tight text-ink md:text-3xl">
-                      {lead.title}
-                    </h3>
-                    <p className="mt-2 text-[12px] uppercase tracking-[0.12em] text-ink/45">
-                      {lead.category || "Manga"}
-                      {lead.year ? ` · ${lead.year}` : ""}
-                    </p>
-                  </div>
-                </div>
-                <span className="mt-1 shrink-0 rounded-full border border-ink/12 p-2.5 text-ink/50 transition-all duration-300 group-hover:border-accent group-hover:bg-accent group-hover:text-pure-white">
-                  <ArrowUpRight size={16} strokeWidth={2} />
-                </span>
-              </div>
-            </Link>
-          </Reveal>
-
-          {/* index of remaining works */}
-          <Reveal delay={0.15} className="lg:col-span-5 lg:pt-6">
-            <p className="mb-2 text-[11px] uppercase tracking-[0.14em] text-ink/40">
-              Indice
-            </p>
-            <ul>
-              {rest.map((artwork, index) => (
-                <li key={artwork.id}>
-                  <Link
-                    href={`/portfolio/${artwork.slug}`}
-                    className="group grid grid-cols-[auto_64px_1fr_auto] items-center gap-5 border-t border-ink/12 py-5"
-                  >
-                    <span className="editorial-index text-xl text-ink/25 transition-colors group-hover:text-accent">
-                      {pad(index + 2)}
-                    </span>
-                    <div className="relative aspect-square overflow-hidden rounded-md border border-ink/12">
-                      <Image
-                        src={artworkSrc(artwork, index + 1)}
-                        alt={artwork.title}
-                        fill
-                        sizes="64px"
-                        className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      />
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="truncate font-serif text-lg font-medium leading-tight text-ink transition-colors group-hover:text-accent md:text-xl">
-                        {artwork.title}
-                      </h3>
-                      <p className="mt-1 text-[11px] uppercase tracking-[0.12em] text-ink/45">
-                        {artwork.category || "Manga"}
-                        {artwork.year ? ` · ${artwork.year}` : ""}
-                      </p>
-                    </div>
-                    <ArrowUpRight
-                      size={16}
-                      className="text-ink/40 transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-accent"
-                    />
-                  </Link>
-                </li>
-              ))}
-              <li>
-                <Link
-                  href="/portfolio"
-                  className="group flex items-center justify-between border-t border-ink/12 py-5 text-sm font-medium text-ink/60 transition-colors hover:text-accent"
-                >
-                  <span className="u-underline">Esplora l&apos;archivio completo</span>
-                  <ArrowRight
-                    size={16}
-                    className="transition-transform group-hover:translate-x-1"
-                  />
-                </Link>
-              </li>
-            </ul>
-          </Reveal>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function FeaturedEmptyState({ label }: { label: string }) {
-  return (
-    <section
-      id="lavori"
-      className="relative overflow-hidden border-t border-ink/5 bg-paper py-16 md:py-36"
-    >
-      <div className="mx-auto max-w-[1500px] px-5 md:px-16">
-        <Reveal>
-          <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-accent">
-            {label}
-          </p>
-          <h2 className="font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[0.9] text-ink">
-            Lavori scelti
-          </h2>
+        <Reveal delay={0.1}>
+          <div className="mt-12 md:mt-16">
+            <PortfolioScroller
+              artworks={artworks}
+              title={null}
+              headerLink={null}
+              showKindBadge
+            />
+          </div>
         </Reveal>
-        <div className="mt-14 grid gap-8 lg:grid-cols-[0.62fr_0.38fr]">
-          <div className="plate relative min-h-[440px] overflow-hidden rounded-2xl p-3 md:min-h-[560px] md:p-4">
-            <div className="relative h-full w-full overflow-hidden rounded-xl">
-              <Image
-                src="/images/portfolio/Pagina-2.png"
-                alt="Anteprima di una tavola manga"
-                fill
-                sizes="(min-width: 1024px) 58vw, 92vw"
-                className="object-cover"
-              />
-            </div>
-          </div>
-          <div className="flex flex-col justify-between border-t border-ink/12 pt-6 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.12em] text-accent">
-                Archivio in preparazione
-              </p>
-              <h3 className="mt-5 font-serif text-3xl font-medium leading-tight text-ink md:text-4xl">
-                La selezione pubblica delle tavole comparirà qui.
-              </h3>
-              <p className="mt-6 text-base leading-relaxed text-ink/60">
-                Una piccola anteprima del tono visivo dello studio, in attesa del
-                primo archivio completo di tavole e illustrazioni.
-              </p>
-            </div>
-            <Link
-              href="/contact"
-              className="group mt-10 inline-flex items-center gap-2 text-sm font-medium text-ink/60 transition-colors hover:text-accent"
-            >
-              <span className="u-underline">Richiedi una commissione</span>
-              <ArrowUpRight size={15} strokeWidth={1.5} />
-            </Link>
-          </div>
-        </div>
       </div>
     </section>
   );
 }
 
-/* --------------------------------------------------------- Collections -- */
+/* --------------------------------------------------------- Works teaser -- */
 
-function CollectionsSection({ collections }: { collections: Collection[] }) {
+function WorksTeaserSection({ panels }: { panels: HomeKindPanels }) {
+  const entries: Array<{ kind: ArtworkKind } & KindPanelData> = [
+    { kind: "tavola", ...panels.tavola },
+    { kind: "illustrazione", ...panels.illustrazione },
+  ];
+
   return (
     <section className="border-t border-ink/5 bg-pure-white py-16 md:py-36">
       <div className="mx-auto max-w-[1500px] px-5 md:px-16">
@@ -340,57 +190,49 @@ function CollectionsSection({ collections }: { collections: Collection[] }) {
           <div className="grid gap-6 md:grid-cols-[0.5fr_0.5fr] md:items-end">
             <div>
               <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-accent">
-                Collezioni
+                L&apos;archivio
               </p>
               <h2 className="font-serif text-[clamp(2.25rem,5vw,4.5rem)] font-medium leading-[0.92] tracking-[-0.01em] text-ink">
-                Ogni serie
-                <br />
-                racconta una storia
+                I miei lavori
               </h2>
             </div>
             <p className="max-w-md text-base leading-[1.8] text-ink/60 md:justify-self-end">
-              Esplora le tavole raggruppate per serie: soggetti, atmosfere e
-              progetti che condividono lo stesso filo narrativo.
+              Tavole e illustrazioni vivono in due archivi separati: scegli da
+              dove iniziare, oppure sfoglia tutto.
             </p>
           </div>
         </Reveal>
 
-        <div className="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {collections.map((collection, index) => {
+        <div className="no-scrollbar mt-14 flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain pb-4 md:grid md:grid-cols-2 md:overflow-visible md:pb-0">
+          {entries.map((panel, index) => {
+            const labels = KIND_LABELS[panel.kind];
             const cover =
-              getArtworkImageUrl(collection.artworks[0]?.image_path) ??
-              COLLECTION_FALLBACK_IMAGES[index % COLLECTION_FALLBACK_IMAGES.length];
-            const { tagline } = getCollectionCopy(collection.slug);
-            const count = collection.artworks.length;
-            const wide = index === 0;
+              getArtworkImageUrl(panel.cover) ?? KIND_FALLBACK_IMAGES[panel.kind];
+            const countLabel = `${panel.count} ${
+              panel.count === 1
+                ? labels.singular.toLowerCase()
+                : labels.plural.toLowerCase()
+            }`;
 
             return (
               <Reveal
-                key={collection.slug}
-                delay={index * 0.07}
-                className={wide ? "sm:col-span-2 lg:col-span-2" : ""}
+                key={panel.kind}
+                delay={index * 0.08}
+                className="w-[85vw] max-w-[520px] shrink-0 snap-start md:w-auto md:max-w-none"
               >
                 <Link
-                  href={`/portfolio#${collection.slug}`}
+                  href={`/portfolio?tab=${labels.tabSlug}`}
                   className="group relative block overflow-hidden rounded-2xl border border-ink/12 transition-transform duration-500 hover:-translate-y-1"
                 >
-                  <div
-                    className={`relative overflow-hidden ${
-                      wide ? "aspect-[16/9]" : "aspect-[4/5]"
-                    }`}
-                  >
+                  <div className="relative aspect-[4/3] overflow-hidden">
                     <Image
                       src={cover}
-                      alt={collection.category}
+                      alt={labels.plural}
                       fill
-                      sizes={
-                        wide
-                          ? "(min-width: 1024px) 62vw, 92vw"
-                          : "(min-width: 1024px) 31vw, (min-width: 640px) 45vw, 92vw"
-                      }
+                      sizes="(min-width: 768px) 46vw, 85vw"
                       className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.05]"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-pure-white/90 via-pure-white/50 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-pure-white/90 via-pure-white/40 to-transparent" />
                   </div>
 
                   <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6">
@@ -398,15 +240,12 @@ function CollectionsSection({ collections }: { collections: Collection[] }) {
                       <span className="editorial-index text-sm text-accent">
                         Nº {pad(index + 1)}
                       </span>
-                      <h3 className="mt-2 font-serif text-2xl font-medium leading-tight text-ink md:text-3xl">
-                        {collection.category}
+                      <h3 className="mt-2 font-serif text-3xl font-medium leading-tight text-ink md:text-4xl">
+                        {labels.plural}
                       </h3>
-                      <p className="mt-1 max-w-xs text-sm leading-relaxed text-ink/60">
-                        {tagline}
-                      </p>
                     </div>
                     <span className="shrink-0 text-[11px] uppercase tracking-[0.12em] text-ink/60">
-                      {count} {count === 1 ? "tavola" : "tavole"}
+                      {countLabel}
                     </span>
                   </div>
 
@@ -500,86 +339,33 @@ function AboutTeaserSection() {
   );
 }
 
-/* ----------------------------------------------------------- Process -- */
+/* ------------------------------------------------------------ Contact -- */
 
-function ProcessSection() {
+function ContactSection() {
   return (
-    <section className="border-t border-ink/5 bg-pure-white py-16 md:py-36">
-      <div className="mx-auto max-w-[1500px] px-5 md:px-16">
-        <Reveal>
-          <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-accent">
-            Il metodo
-          </p>
-          <h2 className="max-w-4xl font-serif text-[clamp(2.25rem,5vw,4.5rem)] font-medium leading-[0.92] tracking-[-0.01em] text-ink">
-            Dal brief alla tavola finale
-          </h2>
-        </Reveal>
-
-        <div className="mt-16 grid gap-8 md:grid-cols-3 md:gap-6">
-          {processSteps.map((item, index) => (
-            <Reveal key={item.step} delay={index * 0.1}>
-              <article className="group transition-transform duration-500 hover:-translate-y-1">
-                <div className="mb-5 flex items-center gap-4">
-                  <span className="editorial-index text-4xl text-accent">
-                    {item.step}
-                  </span>
-                  <span className="h-px flex-1 bg-ink/12" />
-                </div>
-                <div className="plate overflow-hidden rounded-2xl p-2.5">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-xl">
-                    <Image
-                      src={item.image}
-                      alt={`Fase ${item.step} — ${item.title}`}
-                      fill
-                      sizes="(min-width: 768px) 30vw, 92vw"
-                      className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
-                    />
-                  </div>
-                </div>
-                <h3 className="mt-5 font-serif text-2xl font-medium text-ink">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-sm leading-[1.8] text-ink/60">
-                  {item.text}
-                </p>
-              </article>
-            </Reveal>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* -------------------------------------------------------- Commission -- */
-
-function CommissionSection() {
-  return (
-    <section className="relative overflow-hidden border-t border-ink/5 bg-paper py-16 md:py-36">
+    <section className="relative overflow-hidden border-t border-ink/5 bg-pure-white py-16 md:py-36">
       <div className="mx-auto max-w-[1500px] px-5 md:px-16">
         <div className="grid gap-12 lg:grid-cols-[0.58fr_0.42fr] lg:items-center lg:gap-16">
           <Reveal>
             <p className="mb-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-accent">
               <span className="h-px w-8 bg-accent" />
-              Commissioni
+              Contatti
             </p>
             <h2 className="font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[0.9] tracking-[-0.01em] text-ink">
-              Hai una scena
+              Hai un&apos;idea
               <br />
-              da trasformare
-              <br />
-              in tavola?
+              da raccontare?
             </h2>
             <p className="mt-8 max-w-xl text-base leading-[1.85] text-ink/60">
-              Racconta formato, soggetto e atmosfera del progetto: il form
-              raccoglie la richiesta e salva il brief per la risposta.
+              Scrivimi per una commissione, una collaborazione o anche solo per
+              parlare di tavole e illustrazioni: rispondo appena possibile.
             </p>
             <Link
               href="/contact"
               className="group mt-10 inline-flex items-center gap-3 rounded-full bg-ink px-8 py-4 text-sm font-medium text-pure-white transition-all duration-300 hover:bg-accent"
             >
               <Send size={16} strokeWidth={1.5} />
-              Inizia un progetto
+              Scrivimi
               <ArrowRight
                 size={16}
                 className="transition-transform duration-300 group-hover:translate-x-1"
@@ -608,24 +394,39 @@ function CommissionSection() {
 /* -------------------------------------------------------------- Page -- */
 
 export function HomeExperience({
-  featuredArtworks,
-  featuredLabel,
-  collections,
+  hero,
+  mostViewed,
+  mostViewedIsFallback,
+  kindPanels,
 }: {
-  featuredArtworks: Artwork[];
-  featuredLabel: string;
-  collections: Collection[];
+  hero: HomeHeroContent;
+  mostViewed: Artwork[];
+  mostViewedIsFallback: boolean;
+  kindPanels: HomeKindPanels;
 }) {
+  const totalWorks = kindPanels.tavola.count + kindPanels.illustrazione.count;
+
   return (
     <main>
-      <HeroSection />
-      <FeaturedSection artworks={featuredArtworks} label={featuredLabel} />
-      {collections.length ? (
-        <CollectionsSection collections={collections} />
-      ) : null}
+      <HeroSection title={hero.title} subtitle={hero.subtitle} />
+      {mostViewed.length ? (
+        <MostViewedSection
+          artworks={mostViewed}
+          isFallback={mostViewedIsFallback}
+        />
+      ) : (
+        <section
+          id="piu-visti"
+          className="scroll-mt-24 border-t border-ink/5 bg-paper py-16 md:py-36"
+        >
+          <div className="mx-auto max-w-[1500px] px-5 md:px-16">
+            <EmptyGallery />
+          </div>
+        </section>
+      )}
+      {totalWorks ? <WorksTeaserSection panels={kindPanels} /> : null}
       <AboutTeaserSection />
-      <ProcessSection />
-      <CommissionSection />
+      <ContactSection />
     </main>
   );
 }

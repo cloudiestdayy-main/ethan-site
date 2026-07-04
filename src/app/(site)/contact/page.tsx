@@ -1,14 +1,27 @@
 import type { Metadata } from "next";
-import { InstagramIcon, XIcon, ArtStationIcon } from "@/components/social-icons";
 import { ContactForm } from "@/components/contact-form";
 import { Reveal } from "@/components/reveal";
+import {
+  hasSocialLinks,
+  SocialLinks,
+} from "@/components/social-links";
+import { getSiteSettings } from "@/lib/settings";
 
 export const metadata: Metadata = {
-  title: "Commissioni",
-  description: "Richiedi una commissione o un progetto su tavola manga.",
+  title: "Contatti",
+  description:
+    "Scrivimi per commissioni, collaborazioni o per parlare di tavole e illustrazioni.",
 };
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getSiteSettings();
+  const email = settings.contact_email.trim();
+  const socials = {
+    instagramUrl: settings.instagram_url,
+    twitterUrl: settings.twitter_url,
+    artstationUrl: settings.artstation_url,
+  };
+
   return (
     <main className="min-h-screen">
       <section className="border-b border-ink/5 bg-pure-white py-24 md:py-40">
@@ -17,52 +30,33 @@ export default function ContactPage() {
             <Reveal>
               <div className="line-accent mb-6" />
               <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent">
-                Commissioni
+                Contatti
               </p>
               <h1 className="max-w-2xl font-serif text-[clamp(2.5rem,5vw,5rem)] font-medium leading-[0.95] text-ink">
-                Inizia un progetto
+                Mettiti in contatto
               </h1>
               <p className="mt-8 max-w-lg text-base leading-[1.8] text-ink/50">
-                Raccontami la tua idea, il soggetto, il formato desiderato e il
-                mood. La risposta include disponibilita&apos;, tempi e una prima
-                direzione visiva.
+                Che sia una commissione, una collaborazione o una semplice
+                domanda sulle tavole: raccontami la tua idea. La risposta
+                include disponibilita&apos;, tempi e una prima direzione visiva.
               </p>
               <div className="mt-10 space-y-5">
-                <a
-                  href="mailto:cloudiestdayy@gmail.com"
-                  className="block text-lg font-medium text-accent transition-colors hover:text-ink"
-                >
-                  cloudiestdayy@gmail.com
-                </a>
-                <div className="flex gap-4 pt-2">
+                {email ? (
                   <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-ink/25 transition-colors hover:text-accent"
-                    aria-label="Instagram"
+                    href={`mailto:${email}`}
+                    className="block text-lg font-medium text-accent transition-colors hover:text-ink"
                   >
-                    <InstagramIcon className="h-5 w-5" />
+                    {email}
                   </a>
-                  <a
-                    href="https://twitter.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-ink/25 transition-colors hover:text-accent"
-                    aria-label="X"
-                  >
-                    <XIcon className="h-5 w-5" />
-                  </a>
-                  <a
-                    href="https://artstation.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-ink/25 transition-colors hover:text-accent"
-                    aria-label="ArtStation"
-                  >
-                    <ArtStationIcon className="h-5 w-5" />
-                  </a>
-                </div>
+                ) : null}
+                {hasSocialLinks(socials) ? (
+                  <div className="flex gap-4 pt-2">
+                    <SocialLinks
+                      urls={socials}
+                      linkClassName="text-ink/25 transition-colors hover:text-accent"
+                    />
+                  </div>
+                ) : null}
               </div>
             </Reveal>
             <Reveal delay={0.1}>

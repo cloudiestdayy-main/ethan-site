@@ -1,5 +1,6 @@
 import "server-only";
 
+import { normalizeArtwork, normalizeArtworks } from "@/lib/artwork-kinds";
 import {
   createSupabaseServerClient,
   createSupabaseStaticClient,
@@ -32,7 +33,7 @@ export async function getPublicArtworks(options?: { featured?: boolean }) {
     return [];
   }
 
-  return (data || []) as Artwork[];
+  return normalizeArtworks((data || []) as Artwork[]);
 }
 
 /**
@@ -58,7 +59,7 @@ export async function getPublicArtworksStatic() {
     return [] as Artwork[];
   }
 
-  return (data || []) as Artwork[];
+  return normalizeArtworks((data || []) as Artwork[]);
 }
 
 export async function getArtworkBySlug(slug: string) {
@@ -80,5 +81,5 @@ export async function getArtworkBySlug(slug: string) {
     return null;
   }
 
-  return data as Artwork | null;
+  return data ? normalizeArtwork(data as Artwork) : null;
 }

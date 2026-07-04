@@ -74,3 +74,62 @@ create policy "Public can read artwork images"
 on storage.objects
 for select
 using (bucket_id = 'artworks');
+
+-- Tipo opera (ortogonale a category, che resta la dimensione collezione/serie)
+-- e contatore visualizzazioni. Il default 'tavola' riempie anche le righe
+-- esistenti al momento dell'ALTER.
+alter table public.artworks add column if not exists kind text not null default 'tavola';
+alter table public.artworks add column if not exists view_count int not null default 0;
+
+alter table public.artworks drop constraint if exists artworks_kind_check;
+alter table public.artworks
+  add constraint artworks_kind_check check (kind in ('tavola', 'illustrazione'));
+
+-- Impostazioni sito modificabili dall'admin (annuncio header, testi hero).
+-- Le scritture passano solo dalla service role (nessun grant di insert/update).
+create table if not exists public.site_settings (
+  key text primary key,
+  value text not null default '',
+  updated_at timestamptz default now()
+);
+
+alter table public.site_settings enable row level security;
+
+-- Come per artworks: il grant serve oltre alla RLS per la lettura anon.
+grant select on public.site_settings to anon, authenticated;
+
+drop policy if exists "Public can read site settings" on public.site_settings;
+create policy "Public can read site settings"
+on public.site_settings
+for select
+using (true);
+
+-- Chiavi di default (idempotente; valore vuoto = elemento nascosto nel sito).
+-- contact_email parte dal valore reale gia' pubblicato; i social partono
+-- vuoti (le icone compaiono solo quando l'admin inserisce gli URL veri).
+insert into public.site_settings (key, value) values
+  ('announcement_text', ''),
+  ('hero_title', ''),
+  ('hero_subtitle', ''),
+  ('contact_email', 'cloudiestdayy@gmail.com'),
+  ('instagram_url', ''),
+  ('twitter_url', ''),
+  ('artstation_url', '')
+on conflict (key) do nothing;
+
+-- Incremento atomico delle visualizzazioni. SECURITY DEFINER perche' anon
+-- non ha (e non deve avere) UPDATE su artworks; conta solo opere pubblicate.
+create or replace function public.increment_artwork_view(artwork_slug text)
+returns void
+language sql
+security definer
+set search_path = public
+as $$
+  update public.artworks
+  set view_count = view_count + 1
+  where slug = artwork_slug
+    and published = true;
+$$;
+
+revoke all on function public.increment_artwork_view(text) from public;
+grant execute on function public.increment_artwork_view(text) to anon, authenticated;

@@ -20,6 +20,12 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+import {
+  AdminCategoryField,
+  resolveCategoryFields,
+} from "@/components/admin-category-field";
+import { KIND_LABELS } from "@/lib/artwork-kinds";
+import { collectCategories } from "@/lib/categories";
 import { readClientImageDimensions } from "@/lib/client-image-dimensions";
 import { getArtworkImageUrl } from "@/lib/artworks-shared";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -64,11 +70,14 @@ function getNoticeClass(tone: NoticeTone) {
 }
 
 function getArtworkSummary(artwork: Artwork) {
+  const views = artwork.view_count ?? 0;
   return [
-    artwork.category || "Manga",
+    KIND_LABELS[artwork.kind].singular,
+    artwork.category || "Senza categoria",
     artwork.year || "Senza anno",
     artwork.published ? "pubblicata" : "bozza",
     artwork.featured ? "in evidenza" : "archivio",
+    views === 1 ? "1 visita" : `${views} visite`,
   ].join(" / ");
 }
 
@@ -82,6 +91,7 @@ export function AdminArtworkManager({ artworks }: { artworks: Artwork[] }) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [action, setAction] = useState<ActionState>(null);
   const [notice, setNotice] = useState<Notice>(null);
+  const categories = collectCategories(items.map((item) => item.category));
 
   async function patchArtwork(id: string, payload: Record<string, unknown>, label: string) {
     setAction({ id, label });
@@ -160,7 +170,8 @@ export function AdminArtworkManager({ artworks }: { artworks: Artwork[] }) {
     const replacementFile = form.get("image");
     const payload: Record<string, unknown> = {
       title: form.get("title"),
-      category: form.get("category") || null,
+      category: resolveCategoryFields(form),
+      kind: form.get("kind") || artwork.kind,
       description: form.get("description") || null,
       year: form.get("year") || null,
       published: form.get("published") === "on",
@@ -186,6 +197,11 @@ export function AdminArtworkManager({ artworks }: { artworks: Artwork[] }) {
 
   async function toggleArtwork(artwork: Artwork, field: "published" | "featured") {
     await patchArtwork(artwork.id, { [field]: !artwork[field] }, "Aggiornamento");
+  }
+
+  async function toggleKind(artwork: Artwork) {
+    const next = artwork.kind === "tavola" ? "illustrazione" : "tavola";
+    await patchArtwork(artwork.id, { kind: next }, "Aggiornamento");
   }
 
   async function deleteArtwork(artwork: Artwork) {
@@ -348,7 +364,7 @@ export function AdminArtworkManager({ artworks }: { artworks: Artwork[] }) {
                         onSubmit={(event) => handleEditSubmit(event, artwork)}
                         className="mt-6 grid gap-5 rounded-lg border border-ink/8 bg-paper p-5"
                       >
-                        <div className="grid gap-5 md:grid-cols-2">
+                        <div className="grid gap-5 md:grid-cols-3">
                           <label className="block">
                             <span className="text-xs uppercase tracking-[0.18em] text-ink/50">
                               Titolo
@@ -364,11 +380,25 @@ export function AdminArtworkManager({ artworks }: { artworks: Artwork[] }) {
                             <span className="text-xs uppercase tracking-[0.18em] text-ink/50">
                               Categoria
                             </span>
-                            <input
-                              name="category"
+                            <AdminCategoryField
+                              key={artwork.id}
+                              dense
+                              categories={categories}
                               defaultValue={artwork.category || ""}
-                              className="mt-2 w-full border-b border-ink/10 bg-transparent py-3 text-base text-ink outline-none transition focus:border-accent"
                             />
+                          </label>
+                          <label className="block">
+                            <span className="text-xs uppercase tracking-[0.18em] text-ink/50">
+                              Tipo
+                            </span>
+                            <select
+                              name="kind"
+                              defaultValue={artwork.kind}
+                              className="mt-2 w-full cursor-pointer border-b border-ink/10 bg-transparent py-3 text-base text-ink outline-none transition focus:border-accent"
+                            >
+                              <option value="tavola">Tavola</option>
+                              <option value="illustrazione">Illustrazione</option>
+                            </select>
                           </label>
                         </div>
 
@@ -466,6 +496,16 @@ export function AdminArtworkManager({ artworks }: { artworks: Artwork[] }) {
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 md:justify-end">
+                    <button
+                      type="button"
+                      onClick={() => toggleKind(artwork)}
+                      disabled={Boolean(action)}
+                      title={`Tipo: ${KIND_LABELS[artwork.kind].singular}. Clicca per cambiarlo`}
+                      aria-label={`Cambia tipo (ora ${KIND_LABELS[artwork.kind].singular})`}
+                      className="inline-flex h-10 items-center rounded-full border border-ink/10 px-4 text-[11px] uppercase tracking-[0.14em] text-ink/50 transition hover:border-accent hover:text-accent disabled:opacity-35"
+                    >
+                      {KIND_LABELS[artwork.kind].singular}
+                    </button>
                     <button
                       type="button"
                       onClick={() => reorderArtwork(index, -1)}

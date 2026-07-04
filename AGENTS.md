@@ -5,7 +5,7 @@
 > cosa funziona davvero, cosa è finto, e i prossimi passi.
 > Aggiorna questo file quando completi un blocco di lavoro.
 
-Ultimo aggiornamento: 2026-06-07
+Ultimo aggiornamento: 2026-07-05
 
 ---
 
@@ -52,41 +52,67 @@ senza `.env.local`.
 src/
   app/
     (site)/                 # sito pubblico (layout = SiteShell con header/footer)
-      page.tsx              # HOME — DINAMICA da Supabase featured + fallback
-      portfolio/page.tsx    # griglia opere — DINAMICA da Supabase
-      portfolio/[slug]/     # dettaglio opera — DINAMICO
-      about/page.tsx        # statica
-      contact/page.tsx      # form commissioni
+      page.tsx              # HOME — DINAMICA: più visti + teaser tavole/illustrazioni + hero da site_settings
+      portfolio/page.tsx    # "I miei lavori" — tab Tavole|Illustrazioni con swipe, collezioni dentro
+      portfolio/[slug]/     # dettaglio opera — DINAMICO (prev/next nello stesso kind + beacon visite)
+      about/page.tsx        # statica: foto / storia / perché disegno / metodo e strumenti
+      contact/page.tsx      # pagina Contatti (form commissioni invariato)
     admin/
       page.tsx              # pannello admin (server component, gated)
       login/page.tsx        # magic link login
-    api/admin/
-      upload-url/route.ts   # crea signed upload URL per Storage
-      artworks/route.ts     # POST: salva metadati opera (Zod)
-      artworks/[id]/route.ts # PATCH/DELETE: modifica/elimina opera + cleanup Storage
-      artworks/reorder/route.ts # POST: aggiorna sort_order
-      artworks/backfill-dimensions/route.ts # POST: legge dimensioni mancanti
+    api/
+      search-index/route.ts # GET pubblico: indice opere per la ricerca (ISR 60s)
+      views/route.ts        # POST pubblico: incrementa view_count via RPC
+      admin/
+        upload-url/route.ts   # crea signed upload URL per Storage
+        artworks/route.ts     # POST: salva metadati opera (Zod, incl. kind)
+        artworks/[id]/route.ts # PATCH/DELETE: modifica/elimina opera + cleanup Storage
+        artworks/reorder/route.ts # POST: aggiorna sort_order
+        artworks/backfill-dimensions/route.ts # POST: legge dimensioni mancanti
+        settings/route.ts     # PATCH: upsert site_settings + revalidatePath("/", "layout")
     auth/callback/route.ts  # scambio code->session (magic link)
     actions/contact.ts      # server action: salva commission_requests + email
   lib/
     env.ts                  # lettura/validazione env (config opzionale)
     admin.ts                # sessione admin, allowlist, requireAdminForMutation
-    artworks.ts             # query pubbliche (server-only)
+    artworks.ts             # query pubbliche (server-only, righe normalizzate)
     artworks-shared.ts      # getArtworkImageUrl (URL pubblico Storage)
+    artwork-kinds.ts        # KIND_LABELS, normalizeKind/Artworks, splitByKind, tabSlugToKind (client-safe)
+    settings.ts             # getSiteSettings (server-only, client SENZA cookie)
+    settings-shared.ts      # chiavi/tipi/default site_settings (client-safe)
+    search-index.ts         # SearchIndexItem + filterSearchIndex (client-safe)
     email.ts                # Resend (no-op se non configurato)
     slug.ts                 # slugify
     supabase/{server,browser,types}.ts
-  components/               # header, footer, card, form, reveal, admin manager, ecc.
-supabase/schema.sql         # tabelle, RLS, bucket Storage
+  components/               # header (barra annuncio + ricerca), tabs, scroller, admin manager, ecc.
+supabase/schema.sql         # tabelle, RLS, bucket Storage, RPC increment_artwork_view
 ```
 
 ### Flusso dati chiave
 - **Lettura pubblica**: `getPublicArtworks()` / `getArtworkBySlug()` → tabella
   `artworks` con `published = true` (RLS lo impone). Pagine con `export const revalidate = 60`.
+  Le righe passano da `normalizeArtworks` (default `kind`/`view_count` per DB pre-migrazione).
+- **Impostazioni sito**: tabella `site_settings` (key/value: `announcement_text`,
+  `hero_title`, `hero_subtitle`, `contact_email`, `instagram_url`, `twitter_url`,
+  `artstation_url`). Lettura via `getSiteSettings()` in `SiteShell` col client
+  **cookieless** (`createSupabaseStaticClient`) per non rendere dinamiche
+  /about e /contact; la pagina /contact la rilegge per email/social. Scrittura via
+  `PATCH /api/admin/settings` (service role) che fa `revalidatePath("/", "layout")`.
+  Regola: valore vuoto = elemento nascosto (barra, testi hero, icone social, email).
+  Footer e /contact rendono i social con `components/social-links.tsx`.
+- **Tavole vs illustrazioni**: colonna `artworks.kind` (`'tavola' | 'illustrazione'`,
+  default tavola). È ortogonale a `category` (= collezione/serie). Il portfolio divide
+  per kind (tab con swipe), il dettaglio naviga prev/next solo nello stesso kind.
+- **Visite**: colonna `artworks.view_count` + RPC `increment_artwork_view(slug)`
+  (security definer, solo opere pubblicate). Beacon client `ArtworkViewTracker` sul
+  dettaglio (dedupe sessionStorage) → `POST /api/views`. La home ordina i "più visti"
+  per view_count (fallback featured/recenti quando è tutto a 0).
+- **Ricerca**: overlay nell'header che scarica una volta `/api/search-index`
+  (ISR 60s + revalidate dalle mutazioni admin) e filtra client-side.
 - **Upload admin**: browser chiede signed URL a `/api/admin/upload-url` → carica il file
   diretto su Storage bucket `artworks` → `POST /api/admin/artworks` salva i metadati e
-  fa `revalidatePath("/")` e `revalidatePath("/portfolio")`.
-- **CRUD admin**: `PATCH /api/admin/artworks/[id]` modifica metadati/toggle/immagine,
+  fa `revalidatePath` su `/`, `/portfolio` e `/api/search-index`.
+- **CRUD admin**: `PATCH /api/admin/artworks/[id]` modifica metadati/toggle/immagine/kind,
   `DELETE /api/admin/artworks/[id]` elimina record e prova a rimuovere il file Storage,
   `/reorder` aggiorna `sort_order`, `/backfill-dimensions` legge dimensioni mancanti.
 - **Sicurezza mutazioni**: ogni mutazione passa da `requireAdminForMutation()` (verifica
@@ -96,32 +122,40 @@ supabase/schema.sql         # tabelle, RLS, bucket Storage
 
 | Area | Stato |
 |------|-------|
-| `/portfolio` (area lavori) | ✅ Reale, legge da Supabase; layout scroller orizzontale con cornici grigie |
-| `/portfolio/[slug]` (dettaglio) | ✅ Reale (prev/next, metadata OG) |
-| `/contact` (form commissioni) | ✅ Reale (salva su DB + email opzionale) |
-| Admin: upload opere | ✅ Reale (drag&drop, anteprima, dimensioni live, step di stato) |
-| Admin: gestione opere (edit/delete/toggle/riordino) | ✅ Reale |
+| `/portfolio` "I miei lavori" (tab Tavole\|Illustrazioni con swipe + collezioni) | ✅ Reale |
+| `/portfolio/[slug]` (dettaglio) | ✅ Reale (prev/next nello stesso kind, chip tipo, beacon visite, metadata OG) |
+| `/contact` pagina Contatti (form commissioni) | ✅ Reale (salva su DB + email opzionale) |
+| `/about` Chi sono (foto/storia/perché disegno/metodo+strumenti) | ✅ Struttura reale, copy "Perché disegno" e strumenti PLACEHOLDER in attesa del cliente |
+| Barra annuncio header (modificabile da admin) | ✅ Reale (`site_settings.announcement_text`, vuoto = nascosta) |
+| Hero home titolo/sottotitolo da admin | ✅ Reale (`hero_title`/`hero_subtitle`, vuoti di default = nascosti, in attesa testi del cliente) |
+| Ricerca opere (overlay header) | ✅ Reale (indice precaricato + filtro client) |
+| Home "I più visti" | ✅ Reale su `view_count` (fallback featured/recenti finché non ci sono visite) |
+| Campo `kind` tavola/illustrazione | ✅ Codice/schema/form pronti; le opere esistenti nascono 'tavola', riclassificare da admin |
+| Admin: upload opere | ✅ Reale (drag&drop, anteprima, dimensioni live, tipo, step di stato) |
+| Admin: gestione opere (edit/delete/toggle/riordino/switch tipo) | ✅ Reale |
+| Admin: contenuti sito (annuncio + testi hero) | ✅ Reale |
 | Admin: richieste commissione (lista/filtri/letta/archivia/elimina) | ✅ Reale (service role) |
-| Home "Opere in evidenza" | ✅ Reale, legge `featured = true` da Supabase (fallback ultime pubblicate) |
-| Home Stats / Testimonial / Blog | ✅ Rimossi dalla home; sostituiti con metodo + CTA commissioni |
-| Campo `category` | ✅ Codice/schema/form pronti (applicare SQL al DB remoto se già esistente) |
 | Larghezza/altezza immagini | ✅ Salvate sui nuovi upload admin |
-| Social links (IG/Twitter/ArtStation) | ⚠️ URL generici placeholder |
+| Social links (IG/Twitter/ArtStation) | ✅ Da `site_settings` (default vuoti → icone nascoste finché l'admin non inserisce gli URL veri; niente più placeholder) |
+| Email pubblica | ✅ Da `site_settings.contact_email` (footer + /contact) |
+| Categoria opere | ✅ Select delle categorie esistenti + "nuova" in upload/modifica (niente collezioni duplicate per case diverso) |
+| Visite per opera in admin | ✅ Mostrate nel riepilogo di ogni opera ("N visite") |
 
 ## 6. Problemi noti / gap (in ordine di priorità)
 
 1. **Migrazione Supabase remota da applicare.** `supabase/schema.sql` ora include
-   `category` e `alter table ... add column if not exists`, ma un progetto Supabase
-   già creato va aggiornato eseguendo lo SQL. L'API fa retry senza metadati opzionali
-   se le colonne mancano, così l'upload non si rompe durante una demo.
+   `kind`, `view_count`, la tabella `site_settings` e la RPC `increment_artwork_view`:
+   un progetto Supabase già creato va aggiornato eseguendo lo SQL (file idempotente).
+   L'API fa retry senza metadati opzionali se le colonne mancano e le letture
+   normalizzano i default, così il sito non si rompe durante una demo.
 
 2. **Backfill dimensioni richiede Supabase raggiungibile.** L'admin ha il pulsante
    "Dimensioni mancanti" che chiama `/api/admin/artworks/backfill-dimensions`, ma in
    locale può fallire se il server non riesce a raggiungere Supabase/Storage.
 
-3. **Minori**: social link generici (`instagram.com`, ecc.); `auth/callback/route.ts`
-   non gestisce errori OTP; font caricati via `@import` CSS (render-blocking) invece di
-   `next/font/google`.
+3. **Minori**: `auth/callback/route.ts` non gestisce errori OTP. I social ora vengono
+   da `site_settings` (vuoti = nascosti): vanno inseriti gli URL reali dal pannello
+   admin quando il cliente li fornisce.
 
 ## 7. Convenzioni & gotcha
 
@@ -146,6 +180,43 @@ supabase/schema.sql         # tabelle, RLS, bucket Storage
   proposito. Se aggiungi un font, importalo da `next/font/google`, NON con `@import` CSS.
 
 ## 8. Lavori completati di recente
+
+- **2026-07-05 — Redesign richiesto dal cliente: annuncio, ricerca, più visti, tavole/illustrazioni, chi sono, contatti**:
+  - DB (`supabase/schema.sql`, DA ESEGUIRE SUL REMOTO): `artworks.kind`
+    ('tavola'|'illustrazione', default tavola) + `view_count`, tabella `site_settings`
+    (key/value, lettura anon, scrittura service-role), RPC `increment_artwork_view`
+    (security definer, solo pubblicate).
+  - Header: barra annuncio sopra il menu (da `site_settings`, vuota = nascosta);
+    layout unico su tutti i breakpoint: ricerca a sinistra (overlay), logo centro,
+    hamburger a destra; menu overlay full-screen anche desktop; label "Contatti".
+  - Ricerca: `SearchOverlay` + `GET /api/search-index` (ISR 60s, revalidate dalle
+    mutazioni admin), filtro client accent-insensitive su titolo/categoria/tipo.
+  - Home: Hero senza titoli hardcoded (da `hero_title`/`hero_subtitle`, sr-only
+    fallback per SEO) → "I più visti" (PortfolioScroller con badge tipo, fallback
+    featured/recenti) → teaser "I miei lavori" (due card Tavole/Illustrazioni,
+    swipe CSS su mobile) → Chi sono (invariato) → CTA Contatti. Rimosse
+    FeaturedSection/Collections/Process (metodo migrato in /about).
+  - Portfolio: tab Tavole|Illustrazioni con swipe nativo scroll-snap
+    (`PortfolioKindTabs`: sync scroll↔tab, deep-link `?tab=`, replaceState,
+    pannello inattivo cappato a 100svh + inert). Caroselli interni con
+    `overscroll-x-contain` per non rubare lo swipe dei tab.
+  - Dettaglio: prev/next solo stesso kind, chip tipo, back-link al tab giusto,
+    `ArtworkViewTracker` (sessionStorage dedupe) → `POST /api/views` → RPC.
+  - About ristrutturata: Foto / La mia storia / Perché disegno (copy placeholder) /
+    Metodo di lavoro e strumenti (step migrati dalla home + chip strumenti placeholder) / CTA.
+  - Contact riorientata a "Contatti" (metadata/heading/copy); form e backend invariati.
+  - Admin: sezione "Contenuti sito" (`AdminSettingsManager` + `PATCH /api/admin/settings`),
+    campo Tipo nell'upload e nell'edit, switch rapido tipo nella riga opera.
+  - Nota visite: dedupe solo per sessione browser, nessun rate-limit server, conta
+    anche le visite dell'artista — accettato per un portfolio.
+  - Secondo giro (stesso giorno): email pubblica + social in `site_settings`
+    (`contact_email`, `instagram_url`, `twitter_url`, `artstation_url`; vuoto =
+    nascosto, social partono vuoti → risolti i placeholder; nuovo
+    `components/social-links.tsx` usato da footer e /contact, form admin esteso
+    con validazione email/URL); categoria come select delle categorie esistenti
+    + "nuova" in upload e modifica (`components/admin-category-field.tsx` +
+    `lib/categories.ts`, evita collezioni duplicate per maiuscole diverse);
+    `view_count` visibile nel riepilogo opere dell'admin.
 
 - **2026-06-29 — Hardening SEO/routing + pannello commissioni admin + UX upload**:
   - SEO: aggiunti `src/app/sitemap.ts` (statiche + opere da Supabase via client cookieless

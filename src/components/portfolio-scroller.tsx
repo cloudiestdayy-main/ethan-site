@@ -4,6 +4,7 @@ import { useRef, useState, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
+import { KIND_LABELS } from "@/lib/artwork-kinds";
 import { getArtworkImageUrl } from "@/lib/artworks-shared";
 import type { Artwork } from "@/lib/supabase/types";
 
@@ -14,19 +15,29 @@ function getScrollDistance(container: HTMLDivElement) {
   return firstCard.offsetWidth + gap;
 }
 
+const DEFAULT_HEADER_LINK = { href: "/contact", label: "Contatti" };
+
 export function PortfolioScroller({
   artworks,
   title = "Tavole e illustrazioni",
   description,
   id,
+  headerLink,
+  showKindBadge = false,
 }: {
   artworks: Artwork[];
-  title?: string;
+  /** `null` nasconde del tutto la riga di intestazione (es. carosello in home). */
+  title?: string | null;
   description?: string;
   id?: string;
+  /** `undefined` = link Contatti di default; `null` = nessun link. */
+  headerLink?: { href: string; label: string } | null;
+  showKindBadge?: boolean;
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
+  const resolvedHeaderLink =
+    headerLink === undefined ? DEFAULT_HEADER_LINK : headerLink;
 
   const updateProgress = useCallback(() => {
     const container = scrollerRef.current;
@@ -50,30 +61,36 @@ export function PortfolioScroller({
       id={id}
       className="scroll-mt-28 rounded-2xl bg-pure-white p-5 text-ink shadow-[0_8px_40px_rgba(0,0,0,0.06)] md:p-8"
     >
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-        <div>
-          <h2 className="font-serif text-xl font-medium tracking-tight text-ink md:text-2xl">
-            {title}
-          </h2>
-          {description ? (
-            <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-ink/50">
-              {description}
-            </p>
+      {title || resolvedHeaderLink ? (
+        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          {title ? (
+            <div>
+              <h2 className="font-serif text-xl font-medium tracking-tight text-ink md:text-2xl">
+                {title}
+              </h2>
+              {description ? (
+                <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-ink/50">
+                  {description}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+          {resolvedHeaderLink ? (
+            <Link
+              href={resolvedHeaderLink.href}
+              className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-medium text-ink/40 transition-colors hover:text-ink"
+            >
+              {resolvedHeaderLink.label}
+              <ArrowUpRight size={14} strokeWidth={1.6} />
+            </Link>
           ) : null}
         </div>
-        <Link
-          href="/contact"
-          className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-medium text-ink/40 transition-colors hover:text-ink"
-        >
-          Commissioni
-          <ArrowUpRight size={14} strokeWidth={1.6} />
-        </Link>
-      </div>
+      ) : null}
 
       <div
         ref={scrollerRef}
         onScroll={updateProgress}
-        className="portfolio-scrollbar -mx-1 flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth px-1 pb-8 md:gap-8"
+        className="portfolio-scrollbar -mx-1 flex snap-x snap-mandatory gap-6 overflow-x-auto overscroll-x-contain scroll-smooth px-1 pb-8 md:gap-8"
       >
         {artworks.map((artwork, index) => {
           const imageUrl = getArtworkImageUrl(artwork.image_path);
@@ -100,6 +117,11 @@ export function PortfolioScroller({
                       ) : (
                         <div className="h-full w-full bg-paper" />
                       )}
+                      {showKindBadge ? (
+                        <span className="absolute left-3 top-3 z-10 rounded-full bg-pure-white/85 px-3 py-1 text-[10px] uppercase tracking-[0.12em] text-ink/70 backdrop-blur-sm">
+                          {KIND_LABELS[artwork.kind].singular}
+                        </span>
+                      ) : null}
                     </div>
                   </div>
                 </div>

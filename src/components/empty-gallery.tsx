@@ -16,7 +16,7 @@ export function EmptyGallery({ compact = false }: { compact?: boolean }) {
             href="/contact"
             className="mt-8 inline-flex items-center gap-2 text-sm font-medium text-ink/50 transition-colors hover:text-accent"
           >
-            Richiedi una commissione
+            Contattami
             <ArrowUpRight size={15} strokeWidth={1.5} />
           </Link>
         ) : null}
