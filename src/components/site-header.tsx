@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Mail, Menu, Search, UserRound, X } from "lucide-react";
+import { Mail, Menu, Search, X } from "lucide-react";
 import { SearchOverlay } from "@/components/search-overlay";
 
 const navItems = [
@@ -13,10 +13,8 @@ const navItems = [
   { href: "/contact", label: "Contatti" },
 ];
 
-const actionItems = [
-  { href: "/admin/login", label: "Area admin", Icon: UserRound },
-  { href: "/contact", label: "Scrivi", Icon: Mail },
-];
+// Il link all'area admin vive nel footer: il menu resta solo per i visitatori.
+const actionItems = [{ href: "/contact", label: "Scrivi", Icon: Mail }];
 
 export function SiteHeader({ announcement = "" }: { announcement?: string }) {
   const [scrolled, setScrolled] = useState(false);
@@ -38,6 +36,15 @@ export function SiteHeader({ announcement = "" }: { announcement?: string }) {
     };
   }, [menuOpen, searchOpen]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [menuOpen]);
+
   function toggleMenu() {
     setSearchOpen(false);
     setMenuOpen((open) => !open);
@@ -58,8 +65,16 @@ export function SiteHeader({ announcement = "" }: { announcement?: string }) {
         }`}
       >
         {announcementText ? (
-          <p className="truncate bg-ink px-5 py-2 text-center text-[12px] font-medium tracking-[0.04em] text-pure-white">
-            {announcementText}
+          // Si legge intera (fino a 2 righe) e si ritira scrollando, per non
+          // occupare viewport lungo tutta la pagina.
+          <p
+            className={`overflow-hidden bg-ink px-5 text-center text-[12px] font-medium tracking-[0.04em] text-pure-white transition-all duration-500 ${
+              scrolled && !menuOpen
+                ? "max-h-0 py-0 opacity-0"
+                : "max-h-24 py-2 opacity-100"
+            }`}
+          >
+            <span className="line-clamp-2">{announcementText}</span>
           </p>
         ) : null}
 
@@ -69,7 +84,7 @@ export function SiteHeader({ announcement = "" }: { announcement?: string }) {
             onClick={openSearch}
             aria-label="Cerca opere"
             title="Cerca opere"
-            className="inline-flex h-10 w-10 items-center justify-center justify-self-start rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent hover:text-accent"
+            className="inline-flex h-10 w-10 items-center justify-center justify-self-start rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent-ink hover:text-accent-ink"
           >
             <Search size={18} strokeWidth={1.5} />
           </button>
@@ -77,14 +92,14 @@ export function SiteHeader({ announcement = "" }: { announcement?: string }) {
           <Link
             href="/"
             onClick={() => setMenuOpen(false)}
-            className="justify-self-center font-serif text-[28px] font-semibold leading-none text-ink transition-colors duration-300 hover:text-accent md:text-[32px]"
+            className="justify-self-center font-serif text-[28px] font-semibold leading-none text-ink transition-colors duration-300 hover:text-accent-ink md:text-[32px]"
           >
             ED
           </Link>
 
           <button
             onClick={toggleMenu}
-            className="relative flex h-10 w-10 items-center justify-center justify-self-end rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent hover:text-accent"
+            className="relative flex h-10 w-10 items-center justify-center justify-self-end rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent-ink hover:text-accent-ink"
             aria-label="Apri o chiudi il menu"
             aria-expanded={menuOpen}
           >
@@ -111,6 +126,7 @@ export function SiteHeader({ announcement = "" }: { announcement?: string }) {
       </header>
 
       <div
+        inert={!menuOpen}
         className={`fixed inset-0 z-40 bg-pure-white/98 backdrop-blur-2xl transition-all duration-700 ${
           menuOpen ? "visible opacity-100" : "invisible opacity-0"
         }`}
@@ -121,7 +137,7 @@ export function SiteHeader({ announcement = "" }: { announcement?: string }) {
               key={item.href}
               href={item.href}
               onClick={() => setMenuOpen(false)}
-              className={`group relative font-serif text-[clamp(1.75rem,7vw,2.5rem)] font-semibold text-ink transition-all duration-500 hover:text-accent ${
+              className={`group relative font-serif text-[clamp(1.75rem,7vw,2.5rem)] font-semibold text-ink transition-all duration-500 hover:text-accent-ink ${
                 menuOpen
                   ? "translate-y-0 opacity-100"
                   : "translate-y-8 opacity-0"
@@ -134,8 +150,8 @@ export function SiteHeader({ announcement = "" }: { announcement?: string }) {
                 <span
                   className={`h-1.5 w-1.5 rounded-full transition-all duration-500 ${
                     pathname === item.href
-                      ? "bg-accent"
-                      : "bg-ink/20 group-hover:bg-accent/60"
+                      ? "bg-accent-ink"
+                      : "bg-ink/20 group-hover:bg-accent-ink/60"
                   }`}
                 />
                 {item.label}
@@ -150,7 +166,7 @@ export function SiteHeader({ announcement = "" }: { announcement?: string }) {
                 href={href}
                 onClick={() => setMenuOpen(false)}
                 aria-label={label}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 text-ink transition-all hover:border-accent hover:text-accent"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 text-ink transition-all hover:border-accent-ink hover:text-accent-ink"
               >
                 <Icon size={20} strokeWidth={1.5} />
               </Link>

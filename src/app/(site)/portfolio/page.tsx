@@ -18,16 +18,17 @@ export const metadata: Metadata = {
 export const revalidate = 60;
 
 type PageProps = {
-  searchParams: Promise<{ tab?: string }>;
+  searchParams: Promise<{ tab?: string; view?: string }>;
 };
 
 export default async function PortfolioPage({ searchParams }: PageProps) {
-  const [{ tab }, artworks] = await Promise.all([
+  const [{ tab, view }, artworks] = await Promise.all([
     searchParams,
     getPublicArtworks(),
   ]);
   const { tavole, illustrazioni } = splitByKind(artworks);
   const initialKind = tabSlugToKind(tab) ?? "tavola";
+  const initialView = view === "griglia" ? "griglia" : "collezioni";
   const tabs: KindTab[] = [
     { kind: "tavola", collections: groupArtworksByCollection(tavole) },
     {
@@ -42,16 +43,16 @@ export default async function PortfolioPage({ searchParams }: PageProps) {
         <div className="mx-auto max-w-[1440px] px-5 md:px-10">
           <Reveal>
             <div className="line-accent mb-6" />
-            <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent">
+            <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent-ink">
               Archivio
             </p>
             <h1 className="mb-8 font-serif text-[clamp(2.5rem,6vw,6rem)] font-medium leading-[0.9] text-ink">
               I miei lavori
             </h1>
-            <p className="max-w-xl text-base leading-[1.8] text-ink/50">
+            <p className="max-w-xl text-base leading-[1.8] text-ink/70">
               Tavole e illustrazioni vivono in due archivi separati: passa da un
               tipo all&apos;altro con i tab (o con uno swipe) e sfoglia le
-              collezioni con calma.
+              collezioni come caroselli o come griglia.
             </p>
           </Reveal>
         </div>
@@ -60,7 +61,11 @@ export default async function PortfolioPage({ searchParams }: PageProps) {
       <section className="bg-paper py-12 md:py-24">
         <div className="mx-auto max-w-[1440px] px-4 md:px-10">
           {artworks.length ? (
-            <PortfolioKindTabs initialKind={initialKind} tabs={tabs} />
+            <PortfolioKindTabs
+              initialKind={initialKind}
+              initialView={initialView}
+              tabs={tabs}
+            />
           ) : (
             <EmptyGallery />
           )}

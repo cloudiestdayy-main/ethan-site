@@ -29,13 +29,13 @@ export default async function ContactPage() {
           <div className="grid gap-14 lg:grid-cols-[0.9fr_1.1fr]">
             <Reveal>
               <div className="line-accent mb-6" />
-              <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent">
+              <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent-ink">
                 Contatti
               </p>
               <h1 className="max-w-2xl font-serif text-[clamp(2.5rem,5vw,5rem)] font-medium leading-[0.95] text-ink">
                 Mettiti in contatto
               </h1>
-              <p className="mt-8 max-w-lg text-base leading-[1.8] text-ink/50">
+              <p className="mt-8 max-w-lg text-base leading-[1.8] text-ink/70">
                 Che sia una commissione, una collaborazione o una semplice
                 domanda sulle tavole: raccontami la tua idea. La risposta
                 include disponibilita&apos;, tempi e una prima direzione visiva.
@@ -44,7 +44,7 @@ export default async function ContactPage() {
                 {email ? (
                   <a
                     href={`mailto:${email}`}
-                    className="block text-lg font-medium text-accent transition-colors hover:text-ink"
+                    className="block text-lg font-medium text-accent-ink transition-colors hover:text-ink"
                   >
                     {email}
                   </a>
@@ -53,7 +53,7 @@ export default async function ContactPage() {
                   <div className="flex gap-4 pt-2">
                     <SocialLinks
                       urls={socials}
-                      linkClassName="text-ink/25 transition-colors hover:text-accent"
+                      linkClassName="text-ink/60 transition-colors hover:text-accent-ink"
                     />
                   </div>
                 ) : null}

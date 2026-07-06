@@ -78,7 +78,7 @@ function HeroSection({ title, subtitle }: HomeHeroContent) {
           )}
 
           {heroSubtitle ? (
-            <p className="mt-6 max-w-xl font-serif text-lg italic leading-relaxed text-ink/60 md:mt-8 md:text-2xl">
+            <p className="mt-6 max-w-xl font-serif text-lg italic leading-relaxed text-ink/70 md:mt-8 md:text-2xl">
               {heroSubtitle}
             </p>
           ) : null}
@@ -86,7 +86,7 @@ function HeroSection({ title, subtitle }: HomeHeroContent) {
           <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
             <Link
               href="/portfolio"
-              className="group inline-flex min-h-12 items-center gap-3 rounded-full bg-ink px-7 py-3.5 text-[14px] font-medium text-pure-white transition-all duration-300 hover:bg-accent sm:px-8"
+              className="group inline-flex min-h-12 items-center gap-3 rounded-full bg-ink px-7 py-3.5 text-[14px] font-medium text-pure-white transition-all duration-300 hover:bg-accent-ink sm:px-8"
             >
               Esplora le opere
               <ArrowRight
@@ -111,7 +111,7 @@ function HeroSection({ title, subtitle }: HomeHeroContent) {
         }`}
         style={{ transitionDelay: "1100ms" }}
       >
-        <span className="text-[10px] uppercase tracking-[0.2em] text-ink/30">
+        <span className="text-[10px] uppercase tracking-[0.2em] text-ink/45">
           Scroll
         </span>
         <span className="flex h-9 w-5 items-start justify-center rounded-full border border-ink/10 p-1">
@@ -140,7 +140,7 @@ function MostViewedSection({
         <Reveal>
           <div className="flex items-end justify-between gap-6">
             <div>
-              <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-accent">
+              <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-accent-ink">
                 {isFallback ? "Una selezione dall'archivio" : "Le opere più amate"}
               </p>
               <h2 className="font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[0.9] tracking-[-0.01em] text-ink">
@@ -149,7 +149,7 @@ function MostViewedSection({
             </div>
             <Link
               href="/portfolio"
-              className="group hidden shrink-0 items-center gap-2 pb-2 text-sm font-medium text-ink/60 transition-colors hover:text-accent md:inline-flex"
+              className="group hidden shrink-0 items-center gap-2 pb-2 text-sm font-medium text-ink/70 transition-colors hover:text-accent-ink md:inline-flex"
             >
               <span className="u-underline">Tutte le opere</span>
               <ArrowUpRight
@@ -189,14 +189,14 @@ function WorksTeaserSection({ panels }: { panels: HomeKindPanels }) {
         <Reveal>
           <div className="grid gap-6 md:grid-cols-[0.5fr_0.5fr] md:items-end">
             <div>
-              <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-accent">
+              <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-accent-ink">
                 L&apos;archivio
               </p>
               <h2 className="font-serif text-[clamp(2.25rem,5vw,4.5rem)] font-medium leading-[0.92] tracking-[-0.01em] text-ink">
                 I miei lavori
               </h2>
             </div>
-            <p className="max-w-md text-base leading-[1.8] text-ink/60 md:justify-self-end">
+            <p className="max-w-md text-base leading-[1.8] text-ink/70 md:justify-self-end">
               Tavole e illustrazioni vivono in due archivi separati: scegli da
               dove iniziare, oppure sfoglia tutto.
             </p>
@@ -237,19 +237,19 @@ function WorksTeaserSection({ panels }: { panels: HomeKindPanels }) {
 
                   <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-6">
                     <div>
-                      <span className="editorial-index text-sm text-accent">
+                      <span className="editorial-index text-sm text-accent-ink">
                         Nº {pad(index + 1)}
                       </span>
                       <h3 className="mt-2 font-serif text-3xl font-medium leading-tight text-ink md:text-4xl">
                         {labels.plural}
                       </h3>
                     </div>
-                    <span className="shrink-0 text-[11px] uppercase tracking-[0.12em] text-ink/60">
+                    <span className="shrink-0 text-[11px] uppercase tracking-[0.12em] text-ink/70">
                       {countLabel}
                     </span>
                   </div>
 
-                  <span className="absolute right-5 top-5 rounded-full border border-ink/10 bg-pure-white/40 p-2.5 text-ink/60 backdrop-blur-sm transition-all duration-300 group-hover:border-accent group-hover:bg-accent group-hover:text-pure-white">
+                  <span className="absolute right-5 top-5 rounded-full border border-ink/10 bg-pure-white/40 p-2.5 text-ink/70 backdrop-blur-sm transition-all duration-300 group-hover:border-accent-ink group-hover:bg-accent-ink group-hover:text-pure-white">
                     <ArrowUpRight size={16} strokeWidth={2} />
                   </span>
                 </Link>
@@ -302,7 +302,7 @@ function AboutTeaserSection() {
           </div>
           <div>
             <Reveal>
-              <p className="mb-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-accent">
+              <p className="mb-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-accent-ink">
                 <span className="h-px w-8 bg-accent" />
                 Chi sono
               </p>
@@ -314,7 +314,7 @@ function AboutTeaserSection() {
               </blockquote>
             </Reveal>
             <Reveal delay={0.2}>
-              <p className="mt-8 max-w-lg text-base leading-[1.85] text-ink/60">
+              <p className="mt-8 max-w-lg text-base leading-[1.85] text-ink/70">
                 Ethan lavora su tavole manga, character design e illustrazioni con
                 un taglio narrativo. Ogni progetto parte dalla composizione e dal
                 ritmo, fino alla rifinitura del tratto.
@@ -323,7 +323,7 @@ function AboutTeaserSection() {
             <Reveal delay={0.3}>
               <Link
                 href="/about"
-                className="group mt-9 inline-flex items-center gap-2 text-sm font-medium text-ink transition-colors hover:text-accent"
+                className="group mt-9 inline-flex items-center gap-2 text-sm font-medium text-ink transition-colors hover:text-accent-ink"
               >
                 <span className="u-underline">La storia completa</span>
                 <ArrowUpRight
@@ -347,7 +347,7 @@ function ContactSection() {
       <div className="mx-auto max-w-[1500px] px-5 md:px-16">
         <div className="grid gap-12 lg:grid-cols-[0.58fr_0.42fr] lg:items-center lg:gap-16">
           <Reveal>
-            <p className="mb-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-accent">
+            <p className="mb-6 flex items-center gap-3 text-[11px] uppercase tracking-[0.14em] text-accent-ink">
               <span className="h-px w-8 bg-accent" />
               Contatti
             </p>
@@ -356,13 +356,13 @@ function ContactSection() {
               <br />
               da raccontare?
             </h2>
-            <p className="mt-8 max-w-xl text-base leading-[1.85] text-ink/60">
+            <p className="mt-8 max-w-xl text-base leading-[1.85] text-ink/70">
               Scrivimi per una commissione, una collaborazione o anche solo per
               parlare di tavole e illustrazioni: rispondo appena possibile.
             </p>
             <Link
               href="/contact"
-              className="group mt-10 inline-flex items-center gap-3 rounded-full bg-ink px-8 py-4 text-sm font-medium text-pure-white transition-all duration-300 hover:bg-accent"
+              className="group mt-10 inline-flex items-center gap-3 rounded-full bg-ink px-8 py-4 text-sm font-medium text-pure-white transition-all duration-300 hover:bg-accent-ink"
             >
               <Send size={16} strokeWidth={1.5} />
               Scrivimi

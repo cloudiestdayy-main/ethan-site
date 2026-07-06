@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArtworkLightbox } from "@/components/artwork-lightbox";
 import { ArtworkViewTracker } from "@/components/artwork-view-tracker";
 import { KIND_LABELS } from "@/lib/artwork-kinds";
 import {
@@ -58,15 +58,17 @@ export default async function ArtworkDetailPage({ params }: PageProps) {
       <ArtworkViewTracker slug={artwork.slug} />
       <section className="bg-pure-white pb-16 pt-28 md:pb-24 md:pt-40">
         <div className="mx-auto max-w-[1440px] px-5 md:px-10">
-          <article className="grid gap-12 lg:grid-cols-[0.34fr_0.66fr]">
-            <aside className="lg:sticky lg:top-32 lg:self-start">
-              <Link
-                href={`/portfolio?tab=${kindLabels.tabSlug}`}
-                className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-ink/35 transition-colors hover:text-accent"
-              >
-                <ArrowLeft size={15} strokeWidth={1.5} /> I miei lavori
-              </Link>
-              <p className="mt-8 text-[11px] uppercase tracking-[0.12em] text-accent">
+          <Link
+            href={`/portfolio?tab=${kindLabels.tabSlug}`}
+            className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-ink/60 transition-colors hover:text-accent-ink"
+          >
+            <ArrowLeft size={15} strokeWidth={1.5} /> I miei lavori
+          </Link>
+          {/* Su mobile prima l'opera, poi il testo: chi arriva da un link
+              deve vedere subito l'immagine. */}
+          <article className="mt-8 grid gap-10 lg:grid-cols-[0.34fr_0.66fr] lg:gap-12">
+            <aside className="order-2 lg:order-1 lg:sticky lg:top-32 lg:self-start">
+              <p className="text-[11px] uppercase tracking-[0.12em] text-accent-ink">
                 {kindLabels.singular}
                 {artwork.category ? ` · ${artwork.category}` : ""}
               </p>
@@ -74,42 +76,52 @@ export default async function ArtworkDetailPage({ params }: PageProps) {
                 {artwork.title}
               </h1>
               {artwork.year ? (
-                <p className="mt-6 text-sm text-ink/30">{artwork.year}</p>
+                <p className="mt-6 text-sm text-ink/60">{artwork.year}</p>
               ) : null}
               {artwork.description ? (
-                <p className="mt-8 max-w-md text-base leading-[1.8] text-ink/50">
+                <p className="mt-8 max-w-md text-base leading-[1.8] text-ink/70">
                   {artwork.description}
                 </p>
               ) : null}
-              <nav className="mt-10 flex flex-wrap gap-3 md:mt-12">
+              <nav
+                aria-label="Altre opere"
+                className="mt-10 flex flex-col gap-3 md:mt-12"
+              >
                 {previous ? (
                   <Link
                     href={`/portfolio/${previous.slug}`}
-                    className="inline-flex items-center gap-2 rounded-full border border-ink/8 px-5 py-3 text-[11px] uppercase tracking-[0.12em] text-ink transition-all hover:border-accent hover:text-accent"
+                    className="group rounded-2xl border border-ink/8 px-5 py-4 transition-all hover:border-accent-ink"
                   >
-                    <ArrowLeft size={14} strokeWidth={1.5} /> Precedente
+                    <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-ink/60">
+                      <ArrowLeft size={13} strokeWidth={1.5} /> Precedente
+                    </span>
+                    <span className="mt-1 block truncate font-serif text-lg font-medium text-ink transition-colors group-hover:text-accent-ink">
+                      {previous.title}
+                    </span>
                   </Link>
                 ) : null}
                 {next ? (
                   <Link
                     href={`/portfolio/${next.slug}`}
-                    className="inline-flex items-center gap-2 rounded-full border border-ink/8 px-5 py-3 text-[11px] uppercase tracking-[0.12em] text-ink transition-all hover:border-accent hover:text-accent"
+                    className="group rounded-2xl border border-ink/8 px-5 py-4 text-right transition-all hover:border-accent-ink"
                   >
-                    Successiva <ArrowRight size={14} strokeWidth={1.5} />
+                    <span className="inline-flex items-center gap-2 text-[11px] uppercase tracking-[0.12em] text-ink/60">
+                      Successiva <ArrowRight size={13} strokeWidth={1.5} />
+                    </span>
+                    <span className="mt-1 block truncate font-serif text-lg font-medium text-ink transition-colors group-hover:text-accent-ink">
+                      {next.title}
+                    </span>
                   </Link>
                 ) : null}
               </nav>
             </aside>
-            <div className="rounded-2xl border border-ink/8 bg-paper p-2 md:p-5">
+            <div className="order-1 rounded-2xl border border-ink/8 bg-paper p-2 md:p-5 lg:order-2">
               {imageUrl ? (
-                <Image
+                <ArtworkLightbox
                   src={imageUrl}
                   alt={artwork.title}
                   width={artwork.image_width || 1200}
                   height={artwork.image_height || 1800}
-                  sizes="(min-width: 1024px) 64vw, 92vw"
-                  className="h-auto w-full rounded-xl object-contain"
-                  priority
                 />
               ) : (
                 <div className="min-h-[70vh] rounded-xl bg-ink/5" />

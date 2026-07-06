@@ -32,7 +32,7 @@ export function SiteFooter({
         <div className="flex flex-col items-start justify-between gap-10 md:flex-row md:items-center">
           <Link
             href="/"
-            className="font-serif text-2xl font-semibold text-ink transition-colors hover:text-accent"
+            className="font-serif text-2xl font-semibold text-ink transition-colors hover:text-accent-ink"
           >
             Ethan&apos;s Drawings
           </Link>
@@ -42,7 +42,7 @@ export function SiteFooter({
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-ink/50 transition-colors hover:text-accent"
+                className="text-sm font-medium text-ink/65 transition-colors hover:text-accent-ink"
               >
                 {item.label}
               </Link>
@@ -53,24 +53,32 @@ export function SiteFooter({
             <div className="flex items-center gap-1">
               <SocialLinks
                 urls={socials}
-                linkClassName="p-2 text-ink/50 transition-colors hover:text-accent"
+                linkClassName="p-2 text-ink/65 transition-colors hover:text-accent-ink"
               />
             </div>
           ) : null}
         </div>
 
         <div className="mt-12 flex flex-col items-start justify-between gap-4 border-t border-ink/5 pt-8 md:flex-row md:items-center">
-          <p className="text-xs text-ink/30">
+          <p className="text-xs text-ink/60">
             &copy; 2026 Ethan&apos;s Drawings. Tutti i diritti riservati.
           </p>
-          {email ? (
-            <a
-              href={`mailto:${email}`}
-              className="text-xs text-accent transition-colors hover:text-ink"
+          <div className="flex flex-wrap items-center gap-6">
+            {email ? (
+              <a
+                href={`mailto:${email}`}
+                className="text-xs text-accent-ink transition-colors hover:text-ink"
+              >
+                {email}
+              </a>
+            ) : null}
+            <Link
+              href="/admin/login"
+              className="text-xs text-ink/60 transition-colors hover:text-accent-ink"
             >
-              {email}
-            </a>
-          ) : null}
+              Area admin
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

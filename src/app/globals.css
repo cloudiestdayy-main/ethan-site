@@ -5,6 +5,9 @@
   --pure-white: #faf9f7;
   --deep-blue: #272d45;
   --accent: #c9a87c;
+  /* Variante dell'accent per il testo: #c9a87c su carta è ~2:1, sotto AA.
+     #8a6b3f arriva a ~4.7:1 e resta nella stessa famiglia calda. */
+  --accent-ink: #8a6b3f;
   --text-blue: #676986;
 }
 
@@ -17,6 +20,7 @@
   --color-ink-soft: #676986;
   --color-deep-blue: #272d45;
   --color-accent: #c9a87c;
+  --color-accent-ink: #8a6b3f;
   --color-pure-black: #1a1a2e;
   --color-pure-white: #faf9f7;
   --color-text-primary: #1a1a2e;
@@ -158,6 +162,12 @@ body {
   display: none;
 }
 
+/* Focus visibile e consistente per la navigazione da tastiera */
+:focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+}
+
 /* Selection */
 ::selection {
   background: #1a1a2e;
@@ -181,7 +191,16 @@ body {
 
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   .grid-item { transform: none !important; opacity: 1 !important; }
   .clip-reveal { clip-path: inset(0 0 0 0) !important; }
   .site-header-enter { animation: none !important; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

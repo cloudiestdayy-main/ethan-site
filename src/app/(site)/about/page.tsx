@@ -82,7 +82,7 @@ export default function AboutPage() {
             <div className="lg:pl-10">
               <Reveal delay={0.2}>
                 <div className="line-accent mb-6" />
-                <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent">
+                <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent-ink">
                   La mia storia
                 </p>
               </Reveal>
@@ -92,7 +92,7 @@ export default function AboutPage() {
                 </h2>
               </Reveal>
               <Reveal delay={0.4}>
-                <p className="mb-6 text-base leading-[1.8] text-ink/50">
+                <p className="mb-6 text-base leading-[1.8] text-ink/70">
                   Mi chiamo Ethan e sono un artista italiano con una passione
                   viscerale per la cultura giapponese. Fin da bambino, i manga
                   hanno rappresentato per me non solo una forma di
@@ -101,7 +101,7 @@ export default function AboutPage() {
                 </p>
               </Reveal>
               <Reveal delay={0.5}>
-                <p className="mb-6 text-base leading-[1.8] text-ink/50">
+                <p className="mb-6 text-base leading-[1.8] text-ink/70">
                   Il mio viaggio artistico e&apos; iniziato con i primi
                   scarabocchi ispirati a Dragon Ball ed e&apos; proseguito
                   attraverso anni di studio approfondito delle tecniche
@@ -112,7 +112,7 @@ export default function AboutPage() {
                 </p>
               </Reveal>
               <Reveal delay={0.6}>
-                <p className="text-base leading-[1.8] text-ink/50">
+                <p className="text-base leading-[1.8] text-ink/70">
                   Oggi il mio lavoro fonde la precisione del tratto manga con la
                   ricchezza espressiva della tradizione artistica giapponese.
                 </p>
@@ -127,7 +127,7 @@ export default function AboutPage() {
           <div className="grid gap-10 lg:grid-cols-[0.4fr_0.6fr] lg:gap-16">
             <Reveal>
               <div className="line-accent mb-6" />
-              <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent">
+              <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent-ink">
                 Perché disegno
               </p>
               <h2 className="font-serif text-[clamp(1.75rem,3vw,2.75rem)] font-medium leading-[1] text-ink">
@@ -136,7 +136,7 @@ export default function AboutPage() {
             </Reveal>
             <div className="lg:pt-2">
               <Reveal delay={0.15}>
-                <p className="mb-6 text-base leading-[1.8] text-ink/50">
+                <p className="mb-6 text-base leading-[1.8] text-ink/70">
                   Disegno da quando ho memoria: prima ancora di essere un
                   mestiere, e&apos; il modo piu&apos; naturale che ho per capire
                   quello che vedo e quello che provo. Una tavola mi permette di
@@ -145,7 +145,7 @@ export default function AboutPage() {
                 </p>
               </Reveal>
               <Reveal delay={0.25}>
-                <p className="text-base leading-[1.8] text-ink/50">
+                <p className="text-base leading-[1.8] text-ink/70">
                   Il bianco e nero, il segno a china e la pagina che respira
                   sono la mia lingua. Ogni storia che disegno e&apos; un modo
                   per condividere la meraviglia che da bambino trovavo nei
@@ -161,7 +161,7 @@ export default function AboutPage() {
         <div className="mx-auto max-w-[1440px] px-5 md:px-10">
           <Reveal>
             <div className="line-accent mb-6" />
-            <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent">
+            <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent-ink">
               Il metodo
             </p>
             <h2 className="max-w-3xl font-serif text-[clamp(2rem,4vw,4rem)] font-medium leading-[0.95] text-ink">
@@ -174,7 +174,7 @@ export default function AboutPage() {
               <Reveal key={item.step} delay={index * 0.1}>
                 <article className="group transition-transform duration-500 hover:-translate-y-1">
                   <div className="mb-5 flex items-center gap-4">
-                    <span className="editorial-index text-4xl text-accent">
+                    <span className="editorial-index text-4xl text-accent-ink">
                       {item.step}
                     </span>
                     <span className="h-px flex-1 bg-ink/12" />
@@ -193,7 +193,7 @@ export default function AboutPage() {
                   <h3 className="mt-5 font-serif text-2xl font-medium text-ink">
                     {item.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-[1.8] text-ink/60">
+                  <p className="mt-3 text-sm leading-[1.8] text-ink/70">
                     {item.text}
                   </p>
                 </article>
@@ -203,14 +203,14 @@ export default function AboutPage() {
 
           <Reveal delay={0.1}>
             <div className="mt-16 border-t border-ink/8 pt-10">
-              <p className="text-[11px] uppercase tracking-[0.12em] text-accent">
+              <p className="text-[11px] uppercase tracking-[0.12em] text-accent-ink">
                 Strumenti
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 {tools.map((tool) => (
                   <span
                     key={tool}
-                    className="rounded-full border border-ink/10 bg-paper px-5 py-2.5 text-sm text-ink/60"
+                    className="rounded-full border border-ink/10 bg-paper px-5 py-2.5 text-sm text-ink/70"
                   >
                     {tool}
                   </span>
@@ -230,7 +230,7 @@ export default function AboutPage() {
               </h2>
               <Link
                 href="/contact"
-                className="inline-flex shrink-0 items-center gap-3 rounded-full border border-accent bg-accent px-8 py-4 text-sm font-medium text-pure-white transition-all duration-300 hover:bg-ink"
+                className="inline-flex shrink-0 items-center gap-3 rounded-full border border-accent-ink bg-accent-ink px-8 py-4 text-sm font-medium text-pure-white transition-all duration-300 hover:border-ink hover:bg-ink"
               >
                 Contattami
                 <ArrowUpRight size={18} strokeWidth={1.5} />

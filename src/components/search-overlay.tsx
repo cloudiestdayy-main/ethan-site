@@ -82,6 +82,7 @@ export function SearchOverlay({
       role="dialog"
       aria-modal="true"
       aria-label="Cerca opere"
+      inert={!open}
       className={`fixed inset-0 z-[60] bg-pure-white/98 backdrop-blur-2xl transition-all duration-500 ${
         open ? "visible opacity-100" : "invisible opacity-0"
       }`}
@@ -95,13 +96,13 @@ export function SearchOverlay({
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Cerca per titolo o collezione..."
             aria-label="Cerca opere per titolo o collezione"
-            className="w-full bg-transparent font-serif text-2xl font-medium text-ink outline-none placeholder:text-ink/25 md:text-3xl"
+            className="w-full bg-transparent font-serif text-2xl font-medium text-ink outline-none placeholder:text-ink/40 md:text-3xl"
           />
           <button
             type="button"
             onClick={handleClose}
             aria-label="Chiudi la ricerca"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent hover:text-accent"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-ink/10 text-ink transition-all duration-300 hover:border-accent-ink hover:text-accent-ink"
           >
             <X size={18} strokeWidth={1.5} />
           </button>
@@ -109,7 +110,7 @@ export function SearchOverlay({
 
         <div className="no-scrollbar mt-2 flex-1 overflow-y-auto pb-10">
           {loading ? (
-            <p className="flex items-center gap-3 py-6 text-sm text-ink/40">
+            <p className="flex items-center gap-3 py-6 text-sm text-ink/60">
               <LoaderCircle size={16} className="animate-spin" />
               Carico l&apos;archivio...
             </p>
@@ -117,13 +118,13 @@ export function SearchOverlay({
 
           {loadFailed ? (
             <div className="flex flex-wrap items-center gap-4 py-6">
-              <p className="text-sm text-ink/50">
+              <p className="text-sm text-ink/70">
                 Non riesco a caricare l&apos;archivio.
               </p>
               <button
                 type="button"
                 onClick={retryLoad}
-                className="rounded-full border border-ink/10 px-4 py-2 text-xs uppercase tracking-[0.14em] text-ink/60 transition hover:border-accent hover:text-accent"
+                className="rounded-full border border-ink/10 px-4 py-2 text-xs uppercase tracking-[0.14em] text-ink/70 transition hover:border-accent-ink hover:text-accent-ink"
               >
                 Riprova
               </button>
@@ -131,7 +132,7 @@ export function SearchOverlay({
           ) : null}
 
           {!loading && !loadFailed && trimmedQuery.length < 2 ? (
-            <p className="py-6 text-sm text-ink/35">
+            <p className="py-6 text-sm text-ink/60">
               Scrivi almeno due lettere per cercare tra tavole e illustrazioni.
             </p>
           ) : null}
@@ -167,16 +168,16 @@ export function SearchOverlay({
                         ) : null}
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate font-serif text-lg font-medium text-ink transition-colors group-hover:text-accent">
+                        <span className="block truncate font-serif text-lg font-medium text-ink transition-colors group-hover:text-accent-ink">
                           {item.title}
                         </span>
-                        <span className="mt-1 block text-[11px] uppercase tracking-[0.12em] text-ink/40">
+                        <span className="mt-1 block text-[11px] uppercase tracking-[0.12em] text-ink/60">
                           {meta}
                         </span>
                       </span>
                       <ArrowUpRight
                         size={16}
-                        className="shrink-0 text-ink/30 transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-accent"
+                        className="shrink-0 text-ink/50 transition-all duration-300 group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-accent-ink"
                       />
                     </Link>
                   </li>
@@ -186,7 +187,7 @@ export function SearchOverlay({
           ) : null}
 
           {showEmptyState ? (
-            <p className="py-6 text-sm text-ink/50">
+            <p className="py-6 text-sm text-ink/70">
               Nessuna opera trovata per &ldquo;{trimmedQuery}&rdquo;.
             </p>
           ) : null}

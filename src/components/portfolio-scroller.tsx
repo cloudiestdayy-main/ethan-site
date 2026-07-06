@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
@@ -35,7 +35,12 @@ export function PortfolioScroller({
   showKindBadge?: boolean;
 }) {
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
+  const [scrollState, setScrollState] = useState({
+    hasOverflow: false,
+    canPrev: false,
+    canNext: false,
+    progress: 0,
+  });
   const resolvedHeaderLink =
     headerLink === undefined ? DEFAULT_HEADER_LINK : headerLink;
 
@@ -44,8 +49,24 @@ export function PortfolioScroller({
     if (!container) return;
     const max = container.scrollWidth - container.clientWidth;
     const current = container.scrollLeft;
-    setProgress(max > 0 ? current / max : 0);
+    setScrollState({
+      hasOverflow: max > 1,
+      canPrev: current > 1,
+      canNext: current < max - 1,
+      progress: max > 0 ? current / max : 0,
+    });
   }, []);
+
+  // Stato iniziale + ricalcolo al resize: se non c'e' overflow i controlli
+  // (frecce e progress) non hanno senso e spariscono del tutto.
+  useEffect(() => {
+    updateProgress();
+    const container = scrollerRef.current;
+    if (!container) return;
+    const observer = new ResizeObserver(updateProgress);
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [updateProgress]);
 
   function scrollGallery(direction: -1 | 1) {
     const container = scrollerRef.current;
@@ -69,7 +90,7 @@ export function PortfolioScroller({
                 {title}
               </h2>
               {description ? (
-                <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-ink/50">
+                <p className="mt-2 max-w-xl text-[13px] leading-relaxed text-ink/65">
                   {description}
                 </p>
               ) : null}
@@ -78,7 +99,7 @@ export function PortfolioScroller({
           {resolvedHeaderLink ? (
             <Link
               href={resolvedHeaderLink.href}
-              className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-medium text-ink/40 transition-colors hover:text-ink"
+              className="inline-flex shrink-0 items-center gap-1.5 text-[13px] font-medium text-ink/65 transition-colors hover:text-ink"
             >
               {resolvedHeaderLink.label}
               <ArrowUpRight size={14} strokeWidth={1.6} />
@@ -129,7 +150,7 @@ export function PortfolioScroller({
                   <h3 className="font-serif text-lg font-medium leading-tight text-ink">
                     {artwork.title}
                   </h3>
-                  <p className="mt-1 text-[13px] leading-relaxed text-ink/40">
+                  <p className="mt-1 text-[13px] leading-relaxed text-ink/60">
                     {artwork.category || "Manga"}
                     {artwork.year ? ` / ${artwork.year}` : ""}
                   </p>
@@ -140,32 +161,36 @@ export function PortfolioScroller({
         })}
       </div>
 
-      <div className="mt-2 flex items-center justify-between gap-4">
-        <div className="relative h-px flex-1 bg-border-subtle">
-          <div
-            className="absolute left-0 top-0 h-full bg-ink transition-all duration-150"
-            style={{ width: `${Math.max(5, progress * 100)}%` }}
-          />
+      {scrollState.hasOverflow ? (
+        <div className="mt-2 flex items-center justify-between gap-4">
+          <div className="relative h-px flex-1 bg-border-subtle">
+            <div
+              className="absolute left-0 top-0 h-full bg-ink transition-all duration-150"
+              style={{ width: `${Math.max(5, scrollState.progress * 100)}%` }}
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => scrollGallery(-1)}
+              disabled={!scrollState.canPrev}
+              aria-label="Opera precedente"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 text-ink/60 transition-all duration-300 hover:border-ink hover:text-ink disabled:cursor-default disabled:opacity-35 disabled:hover:border-ink/10 disabled:hover:text-ink/60 sm:h-9 sm:w-9"
+            >
+              <ArrowLeft size={16} strokeWidth={1.8} />
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollGallery(1)}
+              disabled={!scrollState.canNext}
+              aria-label="Opera successiva"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 text-ink/60 transition-all duration-300 hover:border-ink hover:text-ink disabled:cursor-default disabled:opacity-35 disabled:hover:border-ink/10 disabled:hover:text-ink/60 sm:h-9 sm:w-9"
+            >
+              <ArrowRight size={16} strokeWidth={1.8} />
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => scrollGallery(-1)}
-            aria-label="Opera precedente"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 text-ink/40 transition-all duration-300 hover:border-ink hover:text-ink sm:h-9 sm:w-9"
-          >
-            <ArrowLeft size={16} strokeWidth={1.8} />
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollGallery(1)}
-            aria-label="Opera successiva"
-            className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-ink/10 text-ink/40 transition-all duration-300 hover:border-ink hover:text-ink sm:h-9 sm:w-9"
-          >
-            <ArrowRight size={16} strokeWidth={1.8} />
-          </button>
-        </div>
-      </div>
+      ) : null}
     </div>
   );
 }

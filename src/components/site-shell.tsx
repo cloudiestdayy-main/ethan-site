@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from "react";
+import { MotionProvider } from "@/components/motion-provider";
 import { NoiseOverlay } from "@/components/noise-overlay";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -10,7 +11,7 @@ export async function SiteShell({ children }: PropsWithChildren) {
   return (
     <div className="min-h-screen bg-pure-white text-ink">
       <SiteHeader announcement={settings.announcement_text} />
-      {children}
+      <MotionProvider>{children}</MotionProvider>
       <SiteFooter
         contactEmail={settings.contact_email}
         socials={{
