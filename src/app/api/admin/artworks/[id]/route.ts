@@ -193,6 +193,13 @@ export async function DELETE(_request: Request, context: RouteContext) {
     return NextResponse.json({ message: "Opera non trovata." }, { status: 404 });
   }
 
+  // Path delle tavole extra da rimuovere dallo Storage: vanno letti prima
+  // del delete (la FK on delete cascade elimina le righe insieme all'opera).
+  const { data: extraImages } = await supabase
+    .from("artwork_images")
+    .select("image_path")
+    .eq("artwork_id", id);
+
   const { error: deleteError } = await supabase.from("artworks").delete().eq("id", id);
 
   if (deleteError) {
@@ -200,11 +207,15 @@ export async function DELETE(_request: Request, context: RouteContext) {
   }
 
   let storageMessage: string | null = null;
+  const pathsToRemove = [
+    ...(existing.image_path ? [existing.image_path] : []),
+    ...(extraImages || []).map((image) => image.image_path).filter(Boolean),
+  ];
 
-  if (existing.image_path) {
+  if (pathsToRemove.length) {
     const { error: removeError } = await supabase.storage
       .from("artworks")
-      .remove([existing.image_path]);
+      .remove(pathsToRemove);
 
     storageMessage = removeError?.message || null;
   }

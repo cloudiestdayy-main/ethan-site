@@ -29,7 +29,11 @@ import { collectCategories } from "@/lib/categories";
 import { readClientImageDimensions } from "@/lib/client-image-dimensions";
 import { getArtworkImageUrl } from "@/lib/artworks-shared";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
-import type { Artwork } from "@/lib/supabase/types";
+import type {
+  Artwork,
+  ArtworkImage,
+  ArtworkWithImages,
+} from "@/lib/supabase/types";
 
 type ActionState = {
   id: string;
@@ -69,12 +73,14 @@ function getNoticeClass(tone: NoticeTone) {
   return "text-ink/50";
 }
 
-function getArtworkSummary(artwork: Artwork) {
+function getArtworkSummary(artwork: ArtworkWithImages) {
   const views = artwork.view_count ?? 0;
+  const pageCount = 1 + artwork.images.length;
   return [
     KIND_LABELS[artwork.kind].singular,
     artwork.category || "Senza categoria",
     artwork.year || "Senza anno",
+    pageCount === 1 ? "1 tavola" : `${pageCount} tavole`,
     artwork.published ? "pubblicata" : "bozza",
     artwork.featured ? "in evidenza" : "archivio",
     views === 1 ? "1 visita" : `${views} visite`,
@@ -85,7 +91,11 @@ async function parseJsonResponse<T>(response: Response): Promise<T> {
   return (await response.json().catch(() => ({}))) as T;
 }
 
-export function AdminArtworkManager({ artworks }: { artworks: Artwork[] }) {
+export function AdminArtworkManager({
+  artworks,
+}: {
+  artworks: ArtworkWithImages[];
+}) {
   const router = useRouter();
   const [items, setItems] = useState(artworks);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -193,6 +203,145 @@ export function AdminArtworkManager({ artworks }: { artworks: Artwork[] }) {
       });
       setAction(null);
     }
+  }
+
+  async function addArtworkImages(
+    artwork: ArtworkWithImages,
+    fileList: FileList | null,
+  ) {
+    const files = Array.from(fileList || []);
+    if (!files.length) return;
+
+    if (files.some((file) => !file.type.startsWith("image/"))) {
+      setNotice({
+        tone: "error",
+        text: "Ogni file deve essere un'immagine (JPG, PNG, WebP o GIF).",
+      });
+      return;
+    }
+
+    setAction({ id: artwork.id, label: "Carico tavole" });
+    setNotice(null);
+
+    try {
+      const uploaded = [];
+      for (const file of files) {
+        uploaded.push(await uploadReplacementImage(file));
+      }
+
+      const response = await fetch(`/api/admin/artworks/${artwork.id}/images`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ images: uploaded }),
+      });
+      const data = await parseJsonResponse<{
+        images?: ArtworkImage[];
+        message?: string;
+      }>(response);
+
+      if (!response.ok || !data.images) {
+        throw new Error(data.message || "Tavole non salvate.");
+      }
+
+      const newImages = data.images;
+      setItems((current) =>
+        current.map((item) =>
+          item.id === artwork.id
+            ? { ...item, images: [...item.images, ...newImages] }
+            : item,
+        ),
+      );
+      setNotice({
+        tone: "success",
+        text: newImages.length === 1 ? "Tavola aggiunta." : "Tavole aggiunte.",
+      });
+      router.refresh();
+    } catch (error) {
+      setNotice({
+        tone: "error",
+        text: error instanceof Error ? error.message : "Upload non riuscito.",
+      });
+    }
+
+    setAction(null);
+  }
+
+  async function removeArtworkImage(
+    artwork: ArtworkWithImages,
+    image: ArtworkImage,
+  ) {
+    const confirmed = window.confirm(
+      "Eliminare questa tavola? Il file su Storage verra' rimosso.",
+    );
+    if (!confirmed) return;
+
+    setAction({ id: artwork.id, label: "Eliminazione tavola" });
+    setNotice(null);
+
+    const response = await fetch(`/api/admin/artworks/${artwork.id}/images`, {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ image_id: image.id }),
+    });
+    const data = await parseJsonResponse<{ message?: string }>(response);
+
+    if (!response.ok) {
+      setNotice({
+        tone: "error",
+        text: data.message || "Eliminazione non riuscita.",
+      });
+      setAction(null);
+      return;
+    }
+
+    setItems((current) =>
+      current.map((item) =>
+        item.id === artwork.id
+          ? { ...item, images: item.images.filter((i) => i.id !== image.id) }
+          : item,
+      ),
+    );
+    setNotice({ tone: "success", text: "Tavola eliminata." });
+    router.refresh();
+    setAction(null);
+  }
+
+  async function reorderArtworkImages(
+    artwork: ArtworkWithImages,
+    index: number,
+    direction: -1 | 1,
+  ) {
+    const nextIndex = index + direction;
+    if (nextIndex < 0 || nextIndex >= artwork.images.length) return;
+
+    const previousItems = items;
+    const reordered = [...artwork.images];
+    const [moved] = reordered.splice(index, 1);
+    reordered.splice(nextIndex, 0, moved);
+
+    setItems((current) =>
+      current.map((item) =>
+        item.id === artwork.id ? { ...item, images: reordered } : item,
+      ),
+    );
+    setAction({ id: artwork.id, label: "Riordino tavole" });
+    setNotice(null);
+
+    const response = await fetch(`/api/admin/artworks/${artwork.id}/images`, {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ids: reordered.map((image) => image.id) }),
+    });
+    const data = await parseJsonResponse<{ message?: string }>(response);
+
+    if (!response.ok) {
+      setItems(previousItems);
+      setNotice({ tone: "error", text: data.message || "Riordino non riuscito." });
+    } else {
+      router.refresh();
+    }
+
+    setAction(null);
   }
 
   async function toggleArtwork(artwork: Artwork, field: "published" | "featured") {
@@ -450,6 +599,93 @@ export function AdminArtworkManager({ artworks }: { artworks: Artwork[] }) {
                             className="mt-2 w-full resize-none border-b border-ink/10 bg-transparent py-3 text-base text-ink outline-none transition focus:border-accent"
                           />
                         </label>
+
+                        <div className="grid gap-3 rounded-xl border border-ink/8 bg-pure-white/50 p-4">
+                          <span className="text-xs uppercase tracking-[0.18em] text-ink/50">
+                            Tavole aggiuntive ({artwork.images.length})
+                          </span>
+                          <p className="text-xs text-ink/35">
+                            Pagine successive alla copertina, nell&apos;ordine in
+                            cui compaiono nella pagina dell&apos;opera.
+                          </p>
+                          {artwork.images.length ? (
+                            <div className="grid gap-2">
+                              {artwork.images.map((image, imageIndex) => {
+                                const pageUrl = getArtworkImageUrl(image.image_path);
+                                return (
+                                  <div
+                                    key={image.id}
+                                    className="flex items-center gap-3 rounded-xl border border-ink/8 px-3 py-2"
+                                  >
+                                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-ink/5">
+                                      {pageUrl ? (
+                                        <Image
+                                          src={pageUrl}
+                                          alt=""
+                                          fill
+                                          sizes="48px"
+                                          className="object-cover"
+                                        />
+                                      ) : null}
+                                    </div>
+                                    <span className="min-w-0 flex-1 truncate text-xs text-ink/50">
+                                      Tavola {imageIndex + 2}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => reorderArtworkImages(artwork, imageIndex, -1)}
+                                      disabled={Boolean(action) || imageIndex === 0}
+                                      title="Sposta su"
+                                      aria-label="Sposta tavola su"
+                                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-ink/10 text-ink/50 transition hover:border-accent hover:text-accent disabled:opacity-35"
+                                    >
+                                      <ArrowUp size={14} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => reorderArtworkImages(artwork, imageIndex, 1)}
+                                      disabled={Boolean(action) || imageIndex === artwork.images.length - 1}
+                                      title="Sposta giu'"
+                                      aria-label="Sposta tavola giu'"
+                                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-ink/10 text-ink/50 transition hover:border-accent hover:text-accent disabled:opacity-35"
+                                    >
+                                      <ArrowDown size={14} />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => removeArtworkImage(artwork, image)}
+                                      disabled={Boolean(action)}
+                                      title="Elimina tavola"
+                                      aria-label="Elimina tavola"
+                                      className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-red-400/25 text-red-300 transition hover:border-red-300 hover:text-red-200 disabled:opacity-35"
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-xs text-ink/35">
+                              Nessuna tavola oltre alla copertina.
+                            </p>
+                          )}
+                          <label className="mt-1 inline-flex w-fit cursor-pointer items-center gap-2 rounded-full border border-ink/10 px-4 py-2 text-xs uppercase tracking-[0.14em] text-ink/50 transition hover:border-accent hover:text-accent">
+                            <ImageUp size={14} strokeWidth={1.7} />
+                            Aggiungi tavole
+                            <input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              className="sr-only"
+                              disabled={Boolean(action)}
+                              onChange={(event) => {
+                                void addArtworkImages(artwork, event.target.files);
+                                event.target.value = "";
+                              }}
+                            />
+                          </label>
+                        </div>
 
                         <div className="flex flex-wrap items-center justify-between gap-4">
                           <div className="flex flex-wrap gap-5 text-sm text-ink/50">

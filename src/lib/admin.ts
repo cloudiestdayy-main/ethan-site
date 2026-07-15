@@ -6,7 +6,12 @@ import {
   createSupabaseAdminClient,
   createSupabaseServerClient,
 } from "@/lib/supabase/server";
-import type { Artwork, CommissionRequest } from "@/lib/supabase/types";
+import type {
+  Artwork,
+  ArtworkImage,
+  ArtworkWithImages,
+  CommissionRequest,
+} from "@/lib/supabase/types";
 
 export function isAllowedAdminEmail(email: string | null | undefined) {
   if (!email) {
@@ -49,11 +54,11 @@ export async function getAdminSession() {
   }
 }
 
-export async function getAllArtworksForAdmin() {
+export async function getAllArtworksForAdmin(): Promise<ArtworkWithImages[]> {
   const supabase = createSupabaseAdminClient();
 
   if (!supabase) {
-    return [] as Artwork[];
+    return [];
   }
 
   const { data, error } = await supabase
@@ -67,7 +72,29 @@ export async function getAllArtworksForAdmin() {
     return [];
   }
 
-  return normalizeArtworks((data || []) as Artwork[]);
+  // Query separata (non join): senza la tabella artwork_images sul remoto
+  // l'admin degrada a "nessuna tavola aggiuntiva" invece di rompersi.
+  const imagesByArtwork = new Map<string, ArtworkImage[]>();
+  const { data: imagesData, error: imagesError } = await supabase
+    .from("artwork_images")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (imagesError) {
+    console.error("Failed to load admin artwork images", imagesError.message);
+  } else {
+    for (const image of (imagesData || []) as ArtworkImage[]) {
+      const list = imagesByArtwork.get(image.artwork_id) || [];
+      list.push(image);
+      imagesByArtwork.set(image.artwork_id, list);
+    }
+  }
+
+  return normalizeArtworks((data || []) as Artwork[]).map((artwork) => ({
+    ...artwork,
+    images: imagesByArtwork.get(artwork.id) || [],
+  }));
 }
 
 export type CommissionRequestsResult = {

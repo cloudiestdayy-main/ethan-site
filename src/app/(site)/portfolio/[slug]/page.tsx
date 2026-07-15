@@ -7,6 +7,7 @@ import { ArtworkViewTracker } from "@/components/artwork-view-tracker";
 import { KIND_LABELS } from "@/lib/artwork-kinds";
 import {
   getArtworkBySlug,
+  getArtworkImages,
   getArtworkImageUrl,
   getPublicArtworks,
   getPublicArtworksStatic,
@@ -41,7 +42,9 @@ export default async function ArtworkDetailPage({ params }: PageProps) {
   ]);
   if (!artwork) notFound();
 
+  const extraImages = await getArtworkImages(artwork.id);
   const imageUrl = getArtworkImageUrl(artwork.image_path);
+  const pageCount = 1 + extraImages.length;
   const kindLabels = KIND_LABELS[artwork.kind];
   // Prev/next restano dentro lo stesso tipo: tavole e illustrazioni
   // sono archivi separati anche nella navigazione di dettaglio.
@@ -75,8 +78,15 @@ export default async function ArtworkDetailPage({ params }: PageProps) {
               <h1 className="mt-4 font-serif text-4xl font-medium leading-[0.95] text-ink md:text-5xl lg:text-6xl">
                 {artwork.title}
               </h1>
-              {artwork.year ? (
-                <p className="mt-6 text-sm text-ink/60">{artwork.year}</p>
+              {artwork.year || pageCount > 1 ? (
+                <p className="mt-6 text-sm text-ink/60">
+                  {[
+                    artwork.year,
+                    pageCount > 1 ? `${pageCount} tavole` : null,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
               ) : null}
               {artwork.description ? (
                 <p className="mt-8 max-w-md text-base leading-[1.8] text-ink/70">
@@ -115,17 +125,41 @@ export default async function ArtworkDetailPage({ params }: PageProps) {
                 ) : null}
               </nav>
             </aside>
-            <div className="order-1 rounded-2xl border border-ink/8 bg-paper p-2 md:p-5 lg:order-2">
-              {imageUrl ? (
-                <ArtworkLightbox
-                  src={imageUrl}
-                  alt={artwork.title}
-                  width={artwork.image_width || 1200}
-                  height={artwork.image_height || 1800}
-                />
-              ) : (
-                <div className="min-h-[70vh] rounded-xl bg-ink/5" />
-              )}
+            <div className="order-1 grid gap-4 lg:order-2 md:gap-6">
+              <div className="rounded-2xl border border-ink/8 bg-paper p-2 md:p-5">
+                {imageUrl ? (
+                  <ArtworkLightbox
+                    src={imageUrl}
+                    alt={
+                      pageCount > 1
+                        ? `${artwork.title} — tavola 1 di ${pageCount}`
+                        : artwork.title
+                    }
+                    width={artwork.image_width || 1200}
+                    height={artwork.image_height || 1800}
+                  />
+                ) : (
+                  <div className="min-h-[70vh] rounded-xl bg-ink/5" />
+                )}
+              </div>
+              {extraImages.map((image, index) => {
+                const pageUrl = getArtworkImageUrl(image.image_path);
+                if (!pageUrl) return null;
+                return (
+                  <div
+                    key={image.id}
+                    className="rounded-2xl border border-ink/8 bg-paper p-2 md:p-5"
+                  >
+                    <ArtworkLightbox
+                      src={pageUrl}
+                      alt={`${artwork.title} — tavola ${index + 2} di ${pageCount}`}
+                      width={image.image_width || 1200}
+                      height={image.image_height || 1800}
+                      priority={false}
+                    />
+                  </div>
+                );
+              })}
             </div>
           </article>
         </div>

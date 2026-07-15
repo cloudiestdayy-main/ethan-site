@@ -96,6 +96,41 @@ alter table public.artworks drop constraint if exists artworks_kind_check;
 alter table public.artworks
   add constraint artworks_kind_check check (kind in ('tavola', 'illustrazione'));
 
+-- Tavole aggiuntive di un'opera (storie a piu' pagine). L'immagine "storica"
+-- dell'opera (artworks.image_path) resta la copertina/pagina 1; queste righe
+-- sono le pagine successive, ordinate per sort_order.
+create table if not exists public.artwork_images (
+  id uuid primary key default gen_random_uuid(),
+  artwork_id uuid not null references public.artworks (id) on delete cascade,
+  image_path text not null,
+  image_width int,
+  image_height int,
+  sort_order int not null default 0,
+  created_at timestamptz default now()
+);
+
+create index if not exists artwork_images_artwork_id_idx
+  on public.artwork_images (artwork_id, sort_order);
+
+alter table public.artwork_images enable row level security;
+
+grant select on public.artwork_images to anon, authenticated;
+grant all on public.artwork_images to service_role;
+
+-- Le pagine sono leggibili solo se l'opera madre e' pubblicata (come la
+-- policy di artworks).
+drop policy if exists "Public can read images of published artworks" on public.artwork_images;
+create policy "Public can read images of published artworks"
+on public.artwork_images
+for select
+using (
+  exists (
+    select 1 from public.artworks
+    where artworks.id = artwork_images.artwork_id
+      and artworks.published = true
+  )
+);
+
 -- Impostazioni sito modificabili dall'admin (annuncio header, testi hero).
 -- Le scritture passano solo dalla service role (nessun grant di insert/update).
 create table if not exists public.site_settings (
@@ -120,6 +155,12 @@ using (true);
 -- Chiavi di default (idempotente; valore vuoto = elemento nascosto nel sito).
 -- contact_email parte dal valore reale gia' pubblicato; i social partono
 -- vuoti (le icone compaiono solo quando l'admin inserisce gli URL veri).
+--
+-- Oltre a queste 7 chiavi storiche, l'editor /admin/content usa altre chiavi
+-- di contenuto (home_*, about_*, contact_*, *_image_path) definite in
+-- src/lib/settings-shared.ts. Non serve seminarle: per loro un valore vuoto
+-- o assente significa "usa il testo/immagine di default nel codice", e le
+-- righe vengono create al primo salvataggio dall'editor.
 insert into public.site_settings (key, value) values
   ('announcement_text', ''),
   ('hero_title', ''),

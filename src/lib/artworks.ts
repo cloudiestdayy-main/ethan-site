@@ -5,7 +5,7 @@ import {
   createSupabaseServerClient,
   createSupabaseStaticClient,
 } from "@/lib/supabase/server";
-import type { Artwork } from "@/lib/supabase/types";
+import type { Artwork, ArtworkImage } from "@/lib/supabase/types";
 export { getArtworkImageUrl } from "@/lib/artworks-shared";
 
 export async function getPublicArtworks(options?: { featured?: boolean }) {
@@ -82,4 +82,31 @@ export async function getArtworkBySlug(slug: string) {
   }
 
   return data ? normalizeArtwork(data as Artwork) : null;
+}
+
+/**
+ * Tavole aggiuntive di un'opera, ordinate. Query separata (non join) cosi'
+ * un'installazione senza la tabella `artwork_images` degrada a lista vuota
+ * senza rompere la pagina di dettaglio.
+ */
+export async function getArtworkImages(artworkId: string) {
+  const supabase = await createSupabaseServerClient();
+
+  if (!supabase) {
+    return [] as ArtworkImage[];
+  }
+
+  const { data, error } = await supabase
+    .from("artwork_images")
+    .select("*")
+    .eq("artwork_id", artworkId)
+    .order("sort_order", { ascending: true })
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Failed to load artwork images", error.message);
+    return [] as ArtworkImage[];
+  }
+
+  return (data || []) as ArtworkImage[];
 }

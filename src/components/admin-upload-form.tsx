@@ -22,7 +22,14 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type UploadState = "idle" | "uploading" | "saving" | "done" | "error";
 
+type SelectedFile = {
+  file: File;
+  url: string;
+  dimensions: ImageDimensions | null;
+};
+
 const MAX_BYTES = 20 * 1024 * 1024; // matches the Storage bucket limit (20MB)
+const MAX_FILES = 40;
 
 function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
@@ -31,7 +38,7 @@ function formatBytes(bytes: number) {
 }
 
 const STEPS: { key: UploadState; label: string }[] = [
-  { key: "uploading", label: "Carico l'immagine" },
+  { key: "uploading", label: "Carico le immagini" },
   { key: "saving", label: "Salvo i metadati" },
   { key: "done", label: "Fatto" },
 ];
@@ -39,100 +46,117 @@ const STEPS: { key: UploadState; label: string }[] = [
 export function AdminUploadForm({ categories }: { categories: string[] }) {
   const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState("");
-  const [dimensions, setDimensions] = useState<ImageDimensions | null>(null);
+  const [files, setFiles] = useState<SelectedFile[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const [state, setState] = useState<UploadState>("idle");
   const [message, setMessage] = useState("");
+  const [uploadProgress, setUploadProgress] = useState(0);
   // Rimonta il selettore categoria dopo un salvataggio (reset dello stato "nuova").
   const [formVersion, setFormVersion] = useState(0);
   const isWorking = state === "uploading" || state === "saving";
+  const filesRef = useRef(files);
+
+  useEffect(() => {
+    filesRef.current = files;
+  }, [files]);
 
   useEffect(() => {
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      for (const item of filesRef.current) URL.revokeObjectURL(item.url);
     };
-  }, [previewUrl]);
+  }, []);
 
-  const selectFile = useCallback(async (selected: File | null) => {
+  const addFiles = useCallback(async (selected: FileList | File[] | null) => {
     setMessage("");
     setState("idle");
 
-    if (!selected) return;
+    const incoming = Array.from(selected || []);
+    if (!incoming.length) return;
 
-    if (!selected.type.startsWith("image/")) {
+    const invalid = incoming.find((file) => !file.type.startsWith("image/"));
+    if (invalid) {
       setState("error");
-      setMessage("Il file deve essere un'immagine (JPG, PNG, WebP o GIF).");
+      setMessage("Ogni file deve essere un'immagine (JPG, PNG, WebP o GIF).");
       return;
     }
 
-    if (selected.size > MAX_BYTES) {
+    const tooBig = incoming.find((file) => file.size > MAX_BYTES);
+    if (tooBig) {
       setState("error");
-      setMessage(`Immagine troppo grande (max ${formatBytes(MAX_BYTES)}).`);
+      setMessage(
+        `"${tooBig.name}" e' troppo grande (max ${formatBytes(MAX_BYTES)}).`,
+      );
       return;
     }
 
-    setPreviewUrl((current) => {
-      if (current) URL.revokeObjectURL(current);
-      return URL.createObjectURL(selected);
+    const prepared: SelectedFile[] = [];
+    for (const file of incoming) {
+      prepared.push({
+        file,
+        url: URL.createObjectURL(file),
+        dimensions: await readClientImageDimensions(file),
+      });
+    }
+
+    setFiles((current) => {
+      const next = [...current, ...prepared];
+      if (next.length > MAX_FILES) {
+        setState("error");
+        setMessage(`Massimo ${MAX_FILES} tavole per opera.`);
+        for (const item of prepared) URL.revokeObjectURL(item.url);
+        return current;
+      }
+      return next;
     });
-    setFile(selected);
-    setDimensions(await readClientImageDimensions(selected));
   }, []);
 
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    void selectFile(event.target.files?.[0] || null);
+    void addFiles(event.target.files);
+    event.target.value = "";
   }
 
   function handleDrop(event: DragEvent<HTMLLabelElement>) {
     event.preventDefault();
     setDragActive(false);
     if (isWorking) return;
-    void selectFile(event.dataTransfer.files?.[0] || null);
+    void addFiles(event.dataTransfer.files);
   }
 
-  function clearFile() {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setFile(null);
-    setPreviewUrl("");
-    setDimensions(null);
+  function removeFile(index: number) {
+    setFiles((current) => {
+      const item = current[index];
+      if (item) URL.revokeObjectURL(item.url);
+      return current.filter((_, i) => i !== index);
+    });
     setState("idle");
     setMessage("");
   }
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function clearFiles() {
+    for (const item of filesRef.current) URL.revokeObjectURL(item.url);
+    setFiles([]);
+    setState("idle");
+    setMessage("");
+  }
 
-    if (!file) {
-      setState("error");
-      setMessage("Seleziona un'immagine prima di salvare.");
-      return;
-    }
-
-    const form = new FormData(event.currentTarget);
+  async function uploadOne(item: SelectedFile) {
     const supabase = createSupabaseBrowserClient();
 
     if (!supabase) {
-      setState("error");
-      setMessage("Supabase non e configurato.");
-      return;
+      throw new Error("Supabase non e configurato.");
     }
-
-    setState("uploading");
-    setMessage("");
-    const measured = dimensions ?? (await readClientImageDimensions(file));
 
     const uploadResponse = await fetch("/api/admin/upload-url", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ filename: file.name, contentType: file.type }),
+      body: JSON.stringify({
+        filename: item.file.name,
+        contentType: item.file.type,
+      }),
     });
 
     if (!uploadResponse.ok) {
-      setState("error");
-      setMessage("Non posso preparare l'upload. Riprova.");
-      return;
+      throw new Error("Non posso preparare l'upload. Riprova.");
     }
 
     const uploadData = (await uploadResponse.json()) as {
@@ -142,16 +166,59 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
 
     const { error: uploadError } = await supabase.storage
       .from("artworks")
-      .uploadToSignedUrl(uploadData.path, uploadData.token, file);
+      .uploadToSignedUrl(uploadData.path, uploadData.token, item.file);
 
     if (uploadError) {
+      throw new Error("Upload non riuscito. Riprova.");
+    }
+
+    const dimensions =
+      item.dimensions ?? (await readClientImageDimensions(item.file));
+
+    return {
+      image_path: uploadData.path,
+      image_width: dimensions.image_width,
+      image_height: dimensions.image_height,
+    };
+  }
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    if (!files.length) {
       setState("error");
-      setMessage("Upload non riuscito. Riprova.");
+      setMessage("Seleziona almeno un'immagine prima di salvare.");
+      return;
+    }
+
+    const form = new FormData(event.currentTarget);
+
+    setState("uploading");
+    setMessage("");
+    setUploadProgress(0);
+
+    const uploaded: Array<{
+      image_path: string;
+      image_width: number | null;
+      image_height: number | null;
+    }> = [];
+
+    try {
+      for (const [index, item] of files.entries()) {
+        setUploadProgress(index + 1);
+        uploaded.push(await uploadOne(item));
+      }
+    } catch (error) {
+      setState("error");
+      setMessage(
+        error instanceof Error ? error.message : "Upload non riuscito.",
+      );
       return;
     }
 
     setState("saving");
 
+    const [cover, ...extraImages] = uploaded;
     const saveResponse = await fetch("/api/admin/artworks", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -161,9 +228,10 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
         kind: form.get("kind") || "tavola",
         description: form.get("description"),
         year: form.get("year") || null,
-        image_path: uploadData.path,
-        image_width: measured.image_width,
-        image_height: measured.image_height,
+        image_path: cover.image_path,
+        image_width: cover.image_width,
+        image_height: cover.image_height,
+        extra_images: extraImages,
         featured: form.get("featured") === "on",
         published: form.get("published") === "on",
       }),
@@ -171,17 +239,27 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
 
     if (!saveResponse.ok) {
       setState("error");
-      setMessage("Immagine caricata, ma i metadati non sono stati salvati.");
+      setMessage("Immagini caricate, ma i metadati non sono stati salvati.");
       return;
     }
 
+    const saveData = (await saveResponse.json().catch(() => ({}))) as {
+      imagesMessage?: string | null;
+    };
+
     formRef.current?.reset();
-    clearFile();
+    clearFiles();
     setFormVersion((version) => version + 1);
     setState("done");
-    setMessage("Opera salvata e pubblicata nell'archivio.");
+    setMessage(
+      saveData.imagesMessage
+        ? `Opera salvata, ma le tavole extra non sono state registrate: ${saveData.imagesMessage}`
+        : "Opera salvata e pubblicata nell'archivio.",
+    );
     router.refresh();
   }
+
+  const cover = files[0] || null;
 
   return (
     <form
@@ -204,60 +282,92 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
               : "border-ink/15 bg-paper/60 hover:border-accent hover:bg-paper"
           }`}
         >
-          {previewUrl ? (
+          {cover ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={previewUrl}
+                src={cover.url}
                 alt=""
                 className="absolute inset-0 h-full w-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-pure-black/55 via-transparent to-transparent" />
+              {files.length > 1 ? (
+                <span className="absolute left-4 top-4 z-10 rounded-full bg-pure-black/50 px-4 py-2 text-xs uppercase tracking-[0.14em] text-pure-white backdrop-blur-sm">
+                  {files.length} tavole
+                </span>
+              ) : null}
               <span className="absolute bottom-4 left-4 right-4 z-10 inline-flex items-center justify-center gap-2 rounded-full border border-pure-white/30 bg-pure-black/40 px-4 py-2 text-xs uppercase tracking-[0.14em] text-pure-white backdrop-blur-sm">
                 <ImageUp size={14} strokeWidth={1.7} />
-                Trascina o clicca per cambiare
+                Trascina o clicca per aggiungerne altre
               </span>
             </>
           ) : (
             <span className="relative z-10 flex flex-col items-center gap-3 px-6">
               <span className="inline-flex items-center gap-3 rounded-full border border-accent/30 bg-pure-white/80 px-5 py-3 text-sm uppercase tracking-[0.16em] text-ink backdrop-blur-sm transition-all duration-300 group-hover:border-accent group-hover:bg-accent/10">
                 <ImageUp size={16} strokeWidth={1.5} />
-                Seleziona o trascina la tavola
+                Seleziona o trascina le tavole
               </span>
               <span className="text-xs text-ink/35">
-                JPG, PNG, WebP o GIF — max {formatBytes(MAX_BYTES)}
+                Anche piu&apos; file insieme — la prima e&apos; la copertina.
+                <br />
+                JPG, PNG, WebP o GIF — max {formatBytes(MAX_BYTES)} ciascuna
               </span>
             </span>
           )}
           <input
             type="file"
             accept="image/*"
+            multiple
             className="sr-only"
             onChange={handleFileChange}
             disabled={isWorking}
           />
         </label>
 
-        {file ? (
-          <div className="flex items-center justify-between gap-3 rounded-2xl border border-ink/8 bg-paper/60 px-4 py-3">
-            <div className="min-w-0">
-              <p className="truncate text-sm text-ink">{file.name}</p>
-              <p className="mt-0.5 text-xs text-ink/40">
-                {formatBytes(file.size)}
-                {dimensions?.image_width && dimensions?.image_height
-                  ? ` · ${dimensions.image_width} × ${dimensions.image_height}px`
-                  : ""}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={clearFile}
-              disabled={isWorking}
-              aria-label="Rimuovi immagine"
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/10 text-ink/50 transition hover:border-red-300 hover:text-red-300 disabled:opacity-50"
-            >
-              <X size={15} strokeWidth={1.7} />
-            </button>
+        {files.length ? (
+          <div className="grid gap-2">
+            {files.map((item, index) => (
+              <div
+                key={`${item.file.name}-${index}`}
+                className="flex items-center gap-3 rounded-2xl border border-ink/8 bg-paper/60 px-4 py-3"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={item.url}
+                  alt=""
+                  className="h-12 w-12 shrink-0 rounded-lg border border-ink/8 object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm text-ink">
+                    {index === 0 ? (
+                      <span className="mr-2 rounded-full bg-accent/15 px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-accent">
+                        Copertina
+                      </span>
+                    ) : (
+                      <span className="mr-2 text-xs text-ink/35">
+                        Tavola {index + 1}
+                      </span>
+                    )}
+                    {item.file.name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-ink/40">
+                    {formatBytes(item.file.size)}
+                    {item.dimensions?.image_width && item.dimensions?.image_height
+                      ? ` · ${item.dimensions.image_width} × ${item.dimensions.image_height}px`
+                      : ""}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeFile(index)}
+                  disabled={isWorking}
+                  aria-label={`Rimuovi ${item.file.name}`}
+                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/10 text-ink/50 transition hover:border-red-300 hover:text-red-300 disabled:opacity-50"
+                >
+                  <X size={15} strokeWidth={1.7} />
+                </button>
+              </div>
+            ))}
           </div>
         ) : null}
       </div>
@@ -342,7 +452,7 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
         <div className="flex flex-wrap items-center gap-4 pt-1">
           <button
             type="submit"
-            disabled={isWorking || !file}
+            disabled={isWorking || !files.length}
             className="inline-flex min-h-12 items-center gap-3 rounded-full bg-ink px-6 py-3 text-sm uppercase tracking-[0.16em] text-pure-white transition hover:bg-accent hover:shadow-[0_0_20px_rgba(201,168,124,0.15)] disabled:cursor-not-allowed disabled:opacity-50"
           >
             {state === "done" ? (
@@ -353,7 +463,7 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
               <Sparkles size={16} strokeWidth={1.7} />
             )}
             {state === "uploading"
-              ? "Carico..."
+              ? `Carico ${uploadProgress}/${files.length}...`
               : state === "saving"
                 ? "Salvo..."
                 : "Salva opera"}

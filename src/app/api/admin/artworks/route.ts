@@ -16,6 +16,17 @@ const artworkSchema = z.object({
   image_height: z.number().int().positive().optional().nullable(),
   featured: z.boolean().default(false),
   published: z.boolean().default(true),
+  // Tavole aggiuntive (pagine successive alla copertina), gia' su Storage.
+  extra_images: z
+    .array(
+      z.object({
+        image_path: z.string().trim().min(3),
+        image_width: z.number().int().positive().optional().nullable(),
+        image_height: z.number().int().positive().optional().nullable(),
+      }),
+    )
+    .max(40)
+    .optional(),
 });
 
 type ArtworkInsertPayload = {
@@ -103,9 +114,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ message: insertResult.error.message }, { status: 500 });
   }
 
+  // Non fatale: l'opera e' salvata anche se le pagine extra falliscono
+  // (es. tabella artwork_images non ancora creata sul remoto).
+  let imagesMessage: string | null = null;
+  const extraImages = parsed.data.extra_images || [];
+
+  if (extraImages.length) {
+    const { error: imagesError } = await supabase.from("artwork_images").insert(
+      extraImages.map((image, index) => ({
+        artwork_id: insertResult.data.id,
+        image_path: image.image_path,
+        image_width: image.image_width || null,
+        image_height: image.image_height || null,
+        sort_order: index,
+      })),
+    );
+    imagesMessage = imagesError?.message || null;
+  }
+
   revalidatePath("/");
   revalidatePath("/portfolio");
   revalidatePath("/api/search-index");
 
-  return NextResponse.json({ artwork: insertResult.data });
+  return NextResponse.json({ artwork: insertResult.data, imagesMessage });
 }

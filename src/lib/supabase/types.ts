@@ -18,6 +18,20 @@ export type Artwork = {
   created_at: string;
 };
 
+/** Tavola aggiuntiva di un'opera (l'immagine dell'opera resta la pagina 1). */
+export type ArtworkImage = {
+  id: string;
+  artwork_id: string;
+  image_path: string;
+  image_width: number | null;
+  image_height: number | null;
+  sort_order: number;
+  created_at: string;
+};
+
+/** Opera con le sue tavole aggiuntive (usata dalla gestione admin). */
+export type ArtworkWithImages = Artwork & { images: ArtworkImage[] };
+
 export type CommissionRequest = {
   id: string;
   name: string;

@@ -14,11 +14,14 @@ export function ArtworkLightbox({
   alt,
   width,
   height,
+  priority = true,
 }: {
   src: string;
   alt: string;
   width: number;
   height: number;
+  /** Solo la prima tavola della pagina deve essere prioritaria. */
+  priority?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [zoomed, setZoomed] = useState(false);
@@ -57,7 +60,7 @@ export function ArtworkLightbox({
           height={height}
           sizes="(min-width: 1024px) 64vw, 92vw"
           className="h-auto w-full rounded-xl object-contain"
-          priority
+          priority={priority}
         />
         <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 rounded-full bg-ink/80 px-4 py-2 text-[11px] font-medium uppercase tracking-[0.12em] text-pure-white opacity-0 backdrop-blur-sm transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
           <Maximize size={13} strokeWidth={1.8} />
