@@ -125,7 +125,9 @@ export const IMAGE_SETTING_KEYS = [
 export type SiteImageKey = (typeof IMAGE_SETTING_KEYS)[number];
 
 export const SITE_IMAGE_FALLBACKS: Record<SiteImageKey, string> = {
-  hero_image_path: "/images/portfolio/Pagina-29.png",
+  // Versione di Pagina-29 senza i margini bianchi della pagina: la hero
+  // full-bleed (stile victoriarosepark.com) non deve mostrare bordi.
+  hero_image_path: "/images/site/hero-default.png",
   portrait_image_path: "/images/artist/ethan-portrait.png",
   process_1_image_path: "/images/process/01-schizzo.png",
   process_2_image_path: "/images/process/02-china.png",

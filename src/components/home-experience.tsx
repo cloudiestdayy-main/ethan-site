@@ -79,11 +79,11 @@ function HeroSection({
           loaded ? "scale-100" : "scale-[1.1]"
         }`}
       />
-      <div className="absolute inset-0 bg-pure-white/45" />
-      <div className="absolute inset-0 bg-gradient-to-b from-pure-white/60 via-transparent to-pure-white/80" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_50%,rgba(250,249,247,0.70),transparent_75%)]" />
+      {/* Solo un gradiente scuro in basso: l'immagine resta pulita (stile
+          victoriarosepark.com) e il testo bianco legge anche su carta chiara. */}
+      <div className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-ink/60 via-ink/15 to-transparent" />
 
-      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-4xl flex-col items-center justify-center px-5 pb-20 pt-32 text-center md:px-6 md:pb-32 md:pt-24">
+      <div className="relative z-10 mx-auto flex min-h-[100svh] max-w-4xl flex-col items-center justify-end px-5 pb-16 pt-32 text-center md:px-6 md:pb-20">
         <div
           className={`flex flex-col items-center transition-all duration-1000 ease-out ${
             loaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
@@ -92,7 +92,7 @@ function HeroSection({
           {heroTitle ? (
             <h1
               data-setting-key="hero_title"
-              className="font-serif text-[clamp(2.75rem,8.5vw,8rem)] font-medium leading-[0.9] tracking-[-0.01em] text-ink"
+              className="font-serif text-[clamp(1.5rem,3.2vw,2.75rem)] font-medium italic leading-snug text-pure-white [text-shadow:0_1px_18px_rgba(26,26,46,0.35)]"
             >
               {heroTitle}
             </h1>
@@ -103,47 +103,24 @@ function HeroSection({
           {heroSubtitle ? (
             <p
               data-setting-key="hero_subtitle"
-              className="mt-6 max-w-xl font-serif text-lg italic leading-relaxed text-ink/70 md:mt-8 md:text-2xl"
+              className="mt-4 max-w-xl text-sm leading-relaxed text-pure-white/85 md:text-base"
             >
               {heroSubtitle}
             </p>
           ) : null}
 
-          <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              href="/portfolio"
-              className="group inline-flex min-h-12 items-center gap-3 rounded-full bg-ink px-7 py-3.5 text-[14px] font-medium text-pure-white transition-all duration-300 hover:bg-accent-ink sm:px-8"
-            >
-              Esplora le opere
-              <ArrowRight
-                size={16}
-                className="transition-transform duration-300 group-hover:translate-x-1"
-              />
-            </Link>
-            <Link
-              href="/about"
-              className="inline-flex min-h-12 items-center rounded-full border border-ink/30 px-7 py-3.5 text-[14px] font-medium text-ink transition-all duration-300 hover:border-ink hover:bg-ink/5 sm:px-8"
-            >
-              Chi sono
-            </Link>
-          </div>
+          <Link
+            href="/portfolio"
+            className="group mt-8 inline-flex min-h-12 items-center gap-3 rounded-full border border-pure-white/80 bg-transparent px-8 py-3.5 text-[14px] font-medium text-pure-white backdrop-blur-[2px] transition-all duration-300 hover:bg-pure-white hover:text-ink"
+          >
+            Esplora le opere
+            <ArrowRight
+              size={16}
+              className="transition-transform duration-300 group-hover:translate-x-1"
+            />
+          </Link>
         </div>
       </div>
-
-      <a
-        href="#piu-visti"
-        className={`absolute bottom-9 left-1/2 z-10 hidden -translate-x-1/2 flex-col items-center gap-2 transition-all duration-1000 md:flex ${
-          loaded ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
-        }`}
-        style={{ transitionDelay: "1100ms" }}
-      >
-        <span className="text-[10px] uppercase tracking-[0.2em] text-ink/45">
-          Scroll
-        </span>
-        <span className="flex h-9 w-5 items-start justify-center rounded-full border border-ink/10 p-1">
-          <span className="h-1.5 w-0.5 animate-bounce rounded-full bg-accent" />
-        </span>
-      </a>
     </section>
   );
 }
