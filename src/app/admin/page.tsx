@@ -1,11 +1,4 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  ArrowUpRight,
-  Images,
-  ImageUp,
-  PenLine,
-} from "lucide-react";
 import { AdminCommissionManager } from "@/components/admin-commission-manager";
 import { AdminShell } from "@/components/admin-shell";
 import {
@@ -18,27 +11,6 @@ export const metadata = {
   title: "Admin",
   robots: { index: false, follow: false },
 };
-
-const SECTION_CARDS = [
-  {
-    href: "/admin/content",
-    icon: PenLine,
-    title: "Contenuti sito",
-    text: "Testi e immagini di home, Chi sono e Contatti, con anteprima live.",
-  },
-  {
-    href: "/admin/upload",
-    icon: ImageUp,
-    title: "Carica opera",
-    text: "Nuova opera per l'archivio, anche con piu' tavole insieme.",
-  },
-  {
-    href: "/admin/artworks",
-    icon: Images,
-    title: "Opere",
-    text: "Modifica, riordina, pubblica o elimina le opere caricate.",
-  },
-];
 
 export default async function AdminPage() {
   const session = await getAdminSession();
@@ -104,31 +76,6 @@ export default async function AdminPage() {
               {stat.value}
             </p>
           </div>
-        ))}
-      </div>
-
-      <div className="mt-8 grid gap-4 md:grid-cols-3">
-        {SECTION_CARDS.map((card) => (
-          <Link
-            key={card.href}
-            href={card.href}
-            className="group rounded-[20px] bg-paper p-6 transition hover:-translate-y-0.5 md:p-8"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-ink text-pure-white transition group-hover:bg-accent-ink">
-                <card.icon size={19} strokeWidth={1.7} />
-              </span>
-              <ArrowUpRight
-                size={18}
-                strokeWidth={1.7}
-                className="text-ink/30 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent-ink"
-              />
-            </div>
-            <h2 className="mt-5 font-display text-2xl font-bold uppercase text-ink">
-              {card.title}
-            </h2>
-            <p className="mt-2 text-sm text-ink/60">{card.text}</p>
-          </Link>
         ))}
       </div>
 
