@@ -4,19 +4,13 @@ import {
   ExternalLink,
   Images,
   ImageUp,
-  Inbox,
   LayoutDashboard,
   PenLine,
 } from "lucide-react";
 import { SignOutButton } from "@/components/sign-out-button";
 import { getCommissionRequests } from "@/lib/admin";
 
-export type AdminSection =
-  | "overview"
-  | "content"
-  | "upload"
-  | "artworks"
-  | "commissions";
+export type AdminSection = "overview" | "content" | "upload" | "artworks";
 
 const NAV_ITEMS = [
   {
@@ -42,12 +36,6 @@ const NAV_ITEMS = [
     href: "/admin/artworks",
     label: "Opere",
     icon: Images,
-  },
-  {
-    id: "commissions" as const,
-    href: "/admin/commissions",
-    label: "Commissioni",
-    icon: Inbox,
   },
 ];
 
@@ -79,8 +67,9 @@ export async function AdminShell({
     (request) => request.status === "new",
   ).length;
 
+  // Le richieste di commissione vivono nella Panoramica: il badge sta lì.
   const badge = (id: AdminSection) =>
-    id === "commissions" && newCount ? (
+    id === "overview" && newCount ? (
       <span className="ml-auto rounded-full bg-accent px-2.5 py-0.5 text-[11px] font-semibold text-pure-black">
         {newCount}
       </span>

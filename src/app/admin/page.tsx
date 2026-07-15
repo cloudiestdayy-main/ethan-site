@@ -4,9 +4,9 @@ import {
   ArrowUpRight,
   Images,
   ImageUp,
-  Inbox,
   PenLine,
 } from "lucide-react";
+import { AdminCommissionManager } from "@/components/admin-commission-manager";
 import { AdminShell } from "@/components/admin-shell";
 import {
   getAdminSession,
@@ -37,12 +37,6 @@ const SECTION_CARDS = [
     icon: Images,
     title: "Opere",
     text: "Modifica, riordina, pubblica o elimina le opere caricate.",
-  },
-  {
-    href: "/admin/commissions",
-    icon: Inbox,
-    title: "Commissioni",
-    text: "Le richieste arrivate dal form contatti.",
   },
 ];
 
@@ -113,7 +107,7 @@ export default async function AdminPage() {
         ))}
       </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2">
+      <div className="mt-8 grid gap-4 md:grid-cols-3">
         {SECTION_CARDS.map((card) => (
           <Link
             key={card.href}
@@ -137,6 +131,31 @@ export default async function AdminPage() {
           </Link>
         ))}
       </div>
+
+      <section className="mt-8 rounded-[20px] bg-paper p-6 md:p-10">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">
+              Posta in arrivo
+            </p>
+            <h2 className="mt-3 font-display text-2xl font-bold uppercase text-ink md:text-4xl">
+              Richieste di commissione
+            </h2>
+          </div>
+          {newCommissions ? (
+            <span className="inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-2 text-xs uppercase tracking-[0.16em] text-accent-ink">
+              {newCommissions} {newCommissions === 1 ? "nuova" : "nuove"}
+            </span>
+          ) : null}
+        </div>
+        <AdminCommissionManager
+          key={commissions.requests
+            .map((request) => `${request.id}:${request.status}`)
+            .join("|")}
+          requests={commissions.requests}
+          loadOk={commissions.ok}
+        />
+      </section>
     </AdminShell>
   );
 }
