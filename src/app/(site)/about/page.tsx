@@ -3,6 +3,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { Reveal } from "@/components/reveal";
+import { getSiteSettings } from "@/lib/settings";
+import {
+  resolveSiteImage,
+  splitLines,
+  splitParagraphs,
+} from "@/lib/settings-shared";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Chi sono",
@@ -10,46 +18,32 @@ export const metadata: Metadata = {
     "La storia di Ethan, perche' disegna, il metodo di lavoro e gli strumenti.",
 };
 
-const processSteps = [
-  {
-    step: "01",
-    title: "Schizzo",
-    text: "La composizione nasce a matita: layout, pose e ritmo della tavola.",
-    image: "/images/process/01-schizzo.png",
-  },
-  {
-    step: "02",
-    title: "China",
-    text: "Il segno viene ripassato a china, definendo contrasti e profondità.",
-    image: "/images/process/02-china.png",
-  },
-  {
-    step: "03",
-    title: "Finale",
-    text: "Rifiniture, retini o colore: la tavola è pronta per stampa o digitale.",
-    image: "/images/process/03-finale.png",
-  },
-];
+export default async function AboutPage() {
+  const settings = await getSiteSettings();
 
-// Elenco placeholder: da confermare con il cliente.
-const tools = [
-  "Matite e portamine",
-  "China e pennini",
-  "Pennelli",
-  "Retini",
-  "Tavoletta grafica",
-];
+  const processSteps = ([1, 2, 3] as const).map((step) => ({
+    step: `0${step}`,
+    title: settings[`about_process_${step}_title`],
+    titleKey: `about_process_${step}_title`,
+    text: settings[`about_process_${step}_text`],
+    textKey: `about_process_${step}_text`,
+    image: resolveSiteImage(settings, `process_${step}_image_path`),
+    imageKey: `process_${step}_image_path`,
+  }));
 
-export default function AboutPage() {
+  const tools = splitLines(settings.about_tools);
+
   return (
     <main>
       <section className="relative flex min-h-[60vh] items-end overflow-hidden pb-12 pt-28 md:min-h-[80vh] md:pb-24 md:pt-40">
         <div className="absolute inset-0">
           <Image
-            src="/images/portfolio/Pagina-29.png"
+            src={resolveSiteImage(settings, "hero_image_path")}
             alt="Studio"
             fill
             priority
+            data-setting-key="hero_image_path"
+            data-setting-type="image"
             className="object-cover"
             sizes="100vw"
           />
@@ -71,10 +65,12 @@ export default function AboutPage() {
             <div className="relative overflow-hidden">
               <div className="clip-reveal">
                 <Image
-                  src="/images/artist/ethan-portrait.png"
+                  src={resolveSiteImage(settings, "portrait_image_path")}
                   alt="Ritratto di Ethan"
                   width={800}
                   height={1067}
+                  data-setting-key="portrait_image_path"
+                  data-setting-type="image"
                   className="aspect-[3/4] w-full rounded-2xl object-cover"
                 />
               </div>
@@ -87,35 +83,29 @@ export default function AboutPage() {
                 </p>
               </Reveal>
               <Reveal delay={0.3}>
-                <h2 className="mb-8 font-serif text-[clamp(1.75rem,3vw,2.75rem)] font-medium leading-[1] text-ink">
-                  Segno, pausa, pagina
+                <h2
+                  data-setting-key="about_story_heading"
+                  className="mb-8 font-serif text-[clamp(1.75rem,3vw,2.75rem)] font-medium leading-[1] text-ink"
+                >
+                  {settings.about_story_heading}
                 </h2>
               </Reveal>
               <Reveal delay={0.4}>
-                <p className="mb-6 text-base leading-[1.8] text-ink/70">
-                  Mi chiamo Ethan e sono un artista italiano con una passione
-                  viscerale per la cultura giapponese. Fin da bambino, i manga
-                  hanno rappresentato per me non solo una forma di
-                  intrattenimento, ma un vero e proprio linguaggio visivo
-                  attraverso cui esprimere emozioni e narrare storie.
-                </p>
-              </Reveal>
-              <Reveal delay={0.5}>
-                <p className="mb-6 text-base leading-[1.8] text-ink/70">
-                  Il mio viaggio artistico e&apos; iniziato con i primi
-                  scarabocchi ispirati a Dragon Ball ed e&apos; proseguito
-                  attraverso anni di studio approfondito delle tecniche
-                  tradizionali giapponesi. Ho avuto la fortuna di viaggiare in
-                  Giappone, dove ho potuto immergermi nella cultura
-                  dell&apos;inking e del sumi-e, affinando il mio stile
-                  personale.
-                </p>
-              </Reveal>
-              <Reveal delay={0.6}>
-                <p className="text-base leading-[1.8] text-ink/70">
-                  Oggi il mio lavoro fonde la precisione del tratto manga con la
-                  ricchezza espressiva della tradizione artistica giapponese.
-                </p>
+                <div
+                  data-setting-key="about_story_text"
+                  data-setting-type="paragraphs"
+                >
+                  {splitParagraphs(settings.about_story_text).map(
+                    (paragraph, index) => (
+                      <p
+                        key={index}
+                        className="mb-6 text-base leading-[1.8] text-ink/70 last:mb-0"
+                      >
+                        {paragraph}
+                      </p>
+                    ),
+                  )}
+                </div>
               </Reveal>
             </div>
           </div>
@@ -130,27 +120,30 @@ export default function AboutPage() {
               <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent-ink">
                 Perché disegno
               </p>
-              <h2 className="font-serif text-[clamp(1.75rem,3vw,2.75rem)] font-medium leading-[1] text-ink">
-                Le storie chiedono spazio
+              <h2
+                data-setting-key="about_why_heading"
+                className="font-serif text-[clamp(1.75rem,3vw,2.75rem)] font-medium leading-[1] text-ink"
+              >
+                {settings.about_why_heading}
               </h2>
             </Reveal>
             <div className="lg:pt-2">
               <Reveal delay={0.15}>
-                <p className="mb-6 text-base leading-[1.8] text-ink/70">
-                  Disegno da quando ho memoria: prima ancora di essere un
-                  mestiere, e&apos; il modo piu&apos; naturale che ho per capire
-                  quello che vedo e quello che provo. Una tavola mi permette di
-                  fermare un momento, dargli un ritmo e restituirlo a chi
-                  guarda.
-                </p>
-              </Reveal>
-              <Reveal delay={0.25}>
-                <p className="text-base leading-[1.8] text-ink/70">
-                  Il bianco e nero, il segno a china e la pagina che respira
-                  sono la mia lingua. Ogni storia che disegno e&apos; un modo
-                  per condividere la meraviglia che da bambino trovavo nei
-                  manga.
-                </p>
+                <div
+                  data-setting-key="about_why_text"
+                  data-setting-type="paragraphs"
+                >
+                  {splitParagraphs(settings.about_why_text).map(
+                    (paragraph, index) => (
+                      <p
+                        key={index}
+                        className="mb-6 text-base leading-[1.8] text-ink/70 last:mb-0"
+                      >
+                        {paragraph}
+                      </p>
+                    ),
+                  )}
+                </div>
               </Reveal>
             </div>
           </div>
@@ -186,14 +179,22 @@ export default function AboutPage() {
                         alt={`Fase ${item.step} — ${item.title}`}
                         fill
                         sizes="(min-width: 768px) 30vw, 92vw"
+                        data-setting-key={item.imageKey}
+                        data-setting-type="image"
                         className="object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-[1.04]"
                       />
                     </div>
                   </div>
-                  <h3 className="mt-5 font-serif text-2xl font-medium text-ink">
+                  <h3
+                    data-setting-key={item.titleKey}
+                    className="mt-5 font-serif text-2xl font-medium text-ink"
+                  >
                     {item.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-[1.8] text-ink/70">
+                  <p
+                    data-setting-key={item.textKey}
+                    className="mt-3 text-sm leading-[1.8] text-ink/70"
+                  >
                     {item.text}
                   </p>
                 </article>
@@ -206,7 +207,11 @@ export default function AboutPage() {
               <p className="text-[11px] uppercase tracking-[0.12em] text-accent-ink">
                 Strumenti
               </p>
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div
+                data-setting-key="about_tools"
+                data-setting-type="list"
+                className="mt-5 flex flex-wrap gap-3"
+              >
                 {tools.map((tool) => (
                   <span
                     key={tool}

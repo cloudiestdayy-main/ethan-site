@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { ArrowUpRight } from "lucide-react";
 import { AdminArtworkManager } from "@/components/admin-artwork-manager";
 import { AdminCommissionManager } from "@/components/admin-commission-manager";
-import { AdminSettingsManager } from "@/components/admin-settings-manager";
 import { AdminUploadForm } from "@/components/admin-upload-form";
 import { SignOutButton } from "@/components/sign-out-button";
 import {
@@ -11,8 +11,6 @@ import {
   getCommissionRequests,
 } from "@/lib/admin";
 import { collectCategories } from "@/lib/categories";
-import { DEFAULT_SITE_SETTINGS } from "@/lib/settings-shared";
-import { getSiteSettings } from "@/lib/settings";
 
 export const metadata = {
   title: "Admin",
@@ -26,9 +24,6 @@ export default async function AdminPage() {
   const commissions = session.allowed
     ? await getCommissionRequests()
     : { ok: true, requests: [] };
-  const settings = session.allowed
-    ? await getSiteSettings()
-    : { ...DEFAULT_SITE_SETTINGS };
   const newCommissionCount = commissions.requests.filter(
     (request) => request.status === "new",
   ).length;
@@ -58,14 +53,27 @@ export default async function AdminPage() {
         ) : (
           <div className="mt-12 grid gap-12">
             <section className="rounded-[20px] bg-paper p-6 md:p-10">
-              <div className="mb-10">
-                <p className="text-xs uppercase tracking-[0.2em] text-accent">Testi del sito</p>
-                <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Contenuti sito</h2>
+              <div className="flex flex-wrap items-end justify-between gap-6">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.2em] text-accent">Testi e immagini</p>
+                  <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Contenuti sito</h2>
+                  <p className="mt-4 max-w-xl text-sm text-ink/50">
+                    Modifica i testi di home, Chi sono e Contatti e le immagini
+                    fisse del sito, con anteprima live prima di pubblicare.
+                  </p>
+                </div>
+                <Link
+                  href="/admin/content"
+                  className="group inline-flex min-h-12 items-center gap-3 rounded-full bg-ink px-6 py-3 text-sm uppercase tracking-[0.16em] text-pure-white transition hover:bg-accent"
+                >
+                  Apri l&apos;editor
+                  <ArrowUpRight
+                    size={16}
+                    strokeWidth={1.7}
+                    className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+                  />
+                </Link>
               </div>
-              <AdminSettingsManager
-                key={`${settings.announcement_text}|${settings.hero_title}|${settings.hero_subtitle}`}
-                settings={settings}
-              />
             </section>
             <section className="rounded-[20px] bg-paper p-6 md:p-10">
               <div className="mb-10">

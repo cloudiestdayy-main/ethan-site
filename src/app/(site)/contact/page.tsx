@@ -32,13 +32,17 @@ export default async function ContactPage() {
               <p className="mb-4 text-[11px] uppercase tracking-[0.12em] text-accent-ink">
                 Contatti
               </p>
-              <h1 className="max-w-2xl font-serif text-[clamp(2.5rem,5vw,5rem)] font-medium leading-[0.95] text-ink">
-                Mettiti in contatto
+              <h1
+                data-setting-key="contact_title"
+                className="max-w-2xl font-serif text-[clamp(2.5rem,5vw,5rem)] font-medium leading-[0.95] text-ink"
+              >
+                {settings.contact_title}
               </h1>
-              <p className="mt-8 max-w-lg text-base leading-[1.8] text-ink/70">
-                Che sia una commissione, una collaborazione o una semplice
-                domanda sulle tavole: raccontami la tua idea. La risposta
-                include disponibilita&apos;, tempi e una prima direzione visiva.
+              <p
+                data-setting-key="contact_intro_text"
+                className="mt-8 max-w-lg whitespace-pre-line text-base leading-[1.8] text-ink/70"
+              >
+                {settings.contact_intro_text}
               </p>
               <div className="mt-10 space-y-5">
                 {email ? (

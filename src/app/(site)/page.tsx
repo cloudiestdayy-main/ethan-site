@@ -2,6 +2,7 @@ import { HomeExperience } from "@/components/home-experience";
 import { splitByKind } from "@/lib/artwork-kinds";
 import { getPublicArtworks } from "@/lib/artworks";
 import { getSiteSettings } from "@/lib/settings";
+import { resolveSiteImage } from "@/lib/settings-shared";
 import type { Artwork } from "@/lib/supabase/types";
 
 export const revalidate = 60;
@@ -46,6 +47,18 @@ export default async function HomePage() {
   return (
     <HomeExperience
       hero={{ title: settings.hero_title, subtitle: settings.hero_subtitle }}
+      content={{
+        mostViewedTitle: settings.home_most_viewed_title,
+        worksTitle: settings.home_works_title,
+        worksText: settings.home_works_text,
+        aboutQuote: settings.home_about_quote,
+        aboutText: settings.home_about_text,
+        contactTitle: settings.home_contact_title,
+        contactText: settings.home_contact_text,
+        heroImage: resolveSiteImage(settings, "hero_image_path"),
+        portraitImage: resolveSiteImage(settings, "portrait_image_path"),
+        contactImage: resolveSiteImage(settings, "contact_image_path"),
+      }}
       mostViewed={mostViewed.artworks}
       mostViewedIsFallback={mostViewed.isFallback}
       kindPanels={{

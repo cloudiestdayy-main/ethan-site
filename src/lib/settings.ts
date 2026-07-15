@@ -2,6 +2,7 @@ import "server-only";
 
 import {
   DEFAULT_SITE_SETTINGS,
+  FALLBACK_KEYS,
   isSiteSettingKey,
   type SiteSettings,
 } from "@/lib/settings-shared";
@@ -33,7 +34,10 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 
   for (const row of data || []) {
     if (typeof row.key === "string" && isSiteSettingKey(row.key)) {
-      settings[row.key] = typeof row.value === "string" ? row.value : "";
+      const value = typeof row.value === "string" ? row.value : "";
+      // Per le chiavi di contenuto un valore vuoto significa "usa il default".
+      if (value === "" && FALLBACK_KEYS.has(row.key)) continue;
+      settings[row.key] = value;
     }
   }
 

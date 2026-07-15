@@ -16,6 +16,20 @@ export type HomeHeroContent = {
   subtitle: string;
 };
 
+/** Testi e immagini della home modificabili dall'editor admin. */
+export type HomeEditableContent = {
+  mostViewedTitle: string;
+  worksTitle: string;
+  worksText: string;
+  aboutQuote: string;
+  aboutText: string;
+  contactTitle: string;
+  contactText: string;
+  heroImage: string;
+  portraitImage: string;
+  contactImage: string;
+};
+
 export type KindPanelData = {
   count: number;
   cover: string | null;
@@ -37,7 +51,11 @@ function pad(n: number) {
 
 /* ----------------------------------------------------------------- Hero -- */
 
-function HeroSection({ title, subtitle }: HomeHeroContent) {
+function HeroSection({
+  title,
+  subtitle,
+  image,
+}: HomeHeroContent & { image: string }) {
   const [loaded, setLoaded] = useState(false);
   const heroTitle = title.trim();
   const heroSubtitle = subtitle.trim();
@@ -50,11 +68,13 @@ function HeroSection({ title, subtitle }: HomeHeroContent) {
   return (
     <section className="relative min-h-[100svh] overflow-hidden bg-pure-white">
       <Image
-        src="/images/portfolio/Pagina-29.png"
+        src={image}
         alt="Tavola manga di apertura dello studio di Ethan"
         fill
         priority
         sizes="100vw"
+        data-setting-key="hero_image_path"
+        data-setting-type="image"
         className={`object-cover object-center transition-transform duration-[2400ms] ease-out ${
           loaded ? "scale-100" : "scale-[1.1]"
         }`}
@@ -70,7 +90,10 @@ function HeroSection({ title, subtitle }: HomeHeroContent) {
           }`}
         >
           {heroTitle ? (
-            <h1 className="font-serif text-[clamp(2.75rem,8.5vw,8rem)] font-medium leading-[0.9] tracking-[-0.01em] text-ink">
+            <h1
+              data-setting-key="hero_title"
+              className="font-serif text-[clamp(2.75rem,8.5vw,8rem)] font-medium leading-[0.9] tracking-[-0.01em] text-ink"
+            >
               {heroTitle}
             </h1>
           ) : (
@@ -78,7 +101,10 @@ function HeroSection({ title, subtitle }: HomeHeroContent) {
           )}
 
           {heroSubtitle ? (
-            <p className="mt-6 max-w-xl font-serif text-lg italic leading-relaxed text-ink/70 md:mt-8 md:text-2xl">
+            <p
+              data-setting-key="hero_subtitle"
+              className="mt-6 max-w-xl font-serif text-lg italic leading-relaxed text-ink/70 md:mt-8 md:text-2xl"
+            >
               {heroSubtitle}
             </p>
           ) : null}
@@ -127,9 +153,11 @@ function HeroSection({ title, subtitle }: HomeHeroContent) {
 function MostViewedSection({
   artworks,
   isFallback,
+  title,
 }: {
   artworks: Artwork[];
   isFallback: boolean;
+  title: string;
 }) {
   return (
     <section
@@ -143,8 +171,11 @@ function MostViewedSection({
               <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-accent-ink">
                 {isFallback ? "Una selezione dall'archivio" : "Le opere più amate"}
               </p>
-              <h2 className="font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[0.9] tracking-[-0.01em] text-ink">
-                I più visti
+              <h2
+                data-setting-key="home_most_viewed_title"
+                className="font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[0.9] tracking-[-0.01em] text-ink"
+              >
+                {title}
               </h2>
             </div>
             <Link
@@ -177,7 +208,15 @@ function MostViewedSection({
 
 /* --------------------------------------------------------- Works teaser -- */
 
-function WorksTeaserSection({ panels }: { panels: HomeKindPanels }) {
+function WorksTeaserSection({
+  panels,
+  title,
+  text,
+}: {
+  panels: HomeKindPanels;
+  title: string;
+  text: string;
+}) {
   const entries: Array<{ kind: ArtworkKind } & KindPanelData> = [
     { kind: "tavola", ...panels.tavola },
     { kind: "illustrazione", ...panels.illustrazione },
@@ -192,13 +231,18 @@ function WorksTeaserSection({ panels }: { panels: HomeKindPanels }) {
               <p className="mb-4 text-[11px] uppercase tracking-[0.14em] text-accent-ink">
                 L&apos;archivio
               </p>
-              <h2 className="font-serif text-[clamp(2.25rem,5vw,4.5rem)] font-medium leading-[0.92] tracking-[-0.01em] text-ink">
-                I miei lavori
+              <h2
+                data-setting-key="home_works_title"
+                className="font-serif text-[clamp(2.25rem,5vw,4.5rem)] font-medium leading-[0.92] tracking-[-0.01em] text-ink"
+              >
+                {title}
               </h2>
             </div>
-            <p className="max-w-md text-base leading-[1.8] text-ink/70 md:justify-self-end">
-              Tavole e illustrazioni vivono in due archivi separati: scegli da
-              dove iniziare, oppure sfoglia tutto.
+            <p
+              data-setting-key="home_works_text"
+              className="max-w-md text-base leading-[1.8] text-ink/70 md:justify-self-end"
+            >
+              {text}
             </p>
           </div>
         </Reveal>
@@ -264,7 +308,15 @@ function WorksTeaserSection({ panels }: { panels: HomeKindPanels }) {
 
 /* ------------------------------------------------------------- About -- */
 
-function AboutTeaserSection() {
+function AboutTeaserSection({
+  quote,
+  text,
+  portraitImage,
+}: {
+  quote: string;
+  text: string;
+  portraitImage: string;
+}) {
   const imgRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -292,10 +344,12 @@ function AboutTeaserSection() {
           <div ref={imgRef} className="relative overflow-hidden">
             <div className="clip-reveal plate rounded-2xl p-3 md:p-4">
               <Image
-                src="/images/artist/ethan-portrait.png"
+                src={portraitImage}
                 alt="Ethan, l'artista dietro Ethan's Drawings"
                 width={800}
                 height={1000}
+                data-setting-key="portrait_image_path"
+                data-setting-type="image"
                 className="aspect-[4/5] w-full rounded-xl object-cover"
               />
             </div>
@@ -309,15 +363,16 @@ function AboutTeaserSection() {
             </Reveal>
             <Reveal delay={0.1}>
               <blockquote className="font-serif text-[clamp(1.75rem,3.4vw,3rem)] font-medium italic leading-[1.15] text-ink">
-                &ldquo;Compongo storie una tavola alla volta: ritmo della pagina,
-                pause e cura del segno.&rdquo;
+                &ldquo;
+                <span data-setting-key="home_about_quote">{quote}</span>&rdquo;
               </blockquote>
             </Reveal>
             <Reveal delay={0.2}>
-              <p className="mt-8 max-w-lg text-base leading-[1.85] text-ink/70">
-                Ethan lavora su tavole manga, character design e illustrazioni con
-                un taglio narrativo. Ogni progetto parte dalla composizione e dal
-                ritmo, fino alla rifinitura del tratto.
+              <p
+                data-setting-key="home_about_text"
+                className="mt-8 max-w-lg text-base leading-[1.85] text-ink/70"
+              >
+                {text}
               </p>
             </Reveal>
             <Reveal delay={0.3}>
@@ -341,7 +396,15 @@ function AboutTeaserSection() {
 
 /* ------------------------------------------------------------ Contact -- */
 
-function ContactSection() {
+function ContactSection({
+  title,
+  text,
+  image,
+}: {
+  title: string;
+  text: string;
+  image: string;
+}) {
   return (
     <section className="relative overflow-hidden border-t border-ink/5 bg-pure-white py-16 md:py-36">
       <div className="mx-auto max-w-[1500px] px-5 md:px-16">
@@ -351,14 +414,17 @@ function ContactSection() {
               <span className="h-px w-8 bg-accent" />
               Contatti
             </p>
-            <h2 className="font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[0.9] tracking-[-0.01em] text-ink">
-              Hai un&apos;idea
-              <br />
-              da raccontare?
+            <h2
+              data-setting-key="home_contact_title"
+              className="whitespace-pre-line font-serif text-[clamp(2.5rem,6vw,5.5rem)] font-medium leading-[0.9] tracking-[-0.01em] text-ink"
+            >
+              {title}
             </h2>
-            <p className="mt-8 max-w-xl text-base leading-[1.85] text-ink/70">
-              Scrivimi per una commissione, una collaborazione o anche solo per
-              parlare di tavole e illustrazioni: rispondo appena possibile.
+            <p
+              data-setting-key="home_contact_text"
+              className="mt-8 max-w-xl text-base leading-[1.85] text-ink/70"
+            >
+              {text}
             </p>
             <Link
               href="/contact"
@@ -376,10 +442,12 @@ function ContactSection() {
             <div className="plate rounded-2xl p-3 md:p-4">
               <div className="relative aspect-[4/5] overflow-hidden rounded-xl">
                 <Image
-                  src="/images/portfolio/Pagina-29.png"
+                  src={image}
                   alt="Tavola manga in bianco e nero"
                   fill
                   sizes="(min-width: 1024px) 40vw, 92vw"
+                  data-setting-key="contact_image_path"
+                  data-setting-type="image"
                   className="object-cover"
                 />
               </div>
@@ -395,11 +463,13 @@ function ContactSection() {
 
 export function HomeExperience({
   hero,
+  content,
   mostViewed,
   mostViewedIsFallback,
   kindPanels,
 }: {
   hero: HomeHeroContent;
+  content: HomeEditableContent;
   mostViewed: Artwork[];
   mostViewedIsFallback: boolean;
   kindPanels: HomeKindPanels;
@@ -408,11 +478,16 @@ export function HomeExperience({
 
   return (
     <main>
-      <HeroSection title={hero.title} subtitle={hero.subtitle} />
+      <HeroSection
+        title={hero.title}
+        subtitle={hero.subtitle}
+        image={content.heroImage}
+      />
       {mostViewed.length ? (
         <MostViewedSection
           artworks={mostViewed}
           isFallback={mostViewedIsFallback}
+          title={content.mostViewedTitle}
         />
       ) : (
         <section
@@ -424,9 +499,23 @@ export function HomeExperience({
           </div>
         </section>
       )}
-      {totalWorks ? <WorksTeaserSection panels={kindPanels} /> : null}
-      <AboutTeaserSection />
-      <ContactSection />
+      {totalWorks ? (
+        <WorksTeaserSection
+          panels={kindPanels}
+          title={content.worksTitle}
+          text={content.worksText}
+        />
+      ) : null}
+      <AboutTeaserSection
+        quote={content.aboutQuote}
+        text={content.aboutText}
+        portraitImage={content.portraitImage}
+      />
+      <ContactSection
+        title={content.contactTitle}
+        text={content.contactText}
+        image={content.contactImage}
+      />
     </main>
   );
 }

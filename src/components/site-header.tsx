@@ -74,7 +74,9 @@ export function SiteHeader({ announcement = "" }: { announcement?: string }) {
                 : "max-h-24 py-2 opacity-100"
             }`}
           >
-            <span className="line-clamp-2">{announcementText}</span>
+            <span data-setting-key="announcement_text" className="line-clamp-2">
+              {announcementText}
+            </span>
           </p>
         ) : null}
 

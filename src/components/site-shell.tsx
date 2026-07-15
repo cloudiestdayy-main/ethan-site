@@ -1,6 +1,7 @@
 import type { PropsWithChildren } from "react";
 import { MotionProvider } from "@/components/motion-provider";
 import { NoiseOverlay } from "@/components/noise-overlay";
+import { PreviewBridge } from "@/components/preview-bridge";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSiteSettings } from "@/lib/settings";
@@ -21,6 +22,7 @@ export async function SiteShell({ children }: PropsWithChildren) {
         }}
       />
       <NoiseOverlay />
+      <PreviewBridge />
     </div>
   );
 }

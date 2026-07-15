@@ -10,6 +10,17 @@ const allowedImageTypes = new Set([
   "image/gif",
 ]);
 
+// Slot per le immagini "di sito" (hero, ritratto, processo, contatti):
+// finiscono sotto site/ nel bucket artworks, separati dalle opere.
+const siteImageSlots = new Set([
+  "hero",
+  "portrait",
+  "process-1",
+  "process-2",
+  "process-3",
+  "contact",
+]);
+
 export async function POST(request: Request) {
   const admin = await requireAdminForMutation();
 
@@ -29,6 +40,8 @@ export async function POST(request: Request) {
   const body = (await request.json()) as {
     filename?: string;
     contentType?: string;
+    scope?: string;
+    slot?: string;
   };
 
   if (!body.contentType || !allowedImageTypes.has(body.contentType)) {
@@ -39,8 +52,20 @@ export async function POST(request: Request) {
   }
 
   const extension = body.filename?.split(".").pop()?.toLowerCase() || "jpg";
-  const baseName = slugify(body.filename?.replace(/\.[^.]+$/, "") || "opera");
-  const path = `${new Date().getFullYear()}/${Date.now()}-${baseName}.${extension}`;
+  let path: string;
+
+  if (body.scope === "site") {
+    if (!body.slot || !siteImageSlots.has(body.slot)) {
+      return NextResponse.json(
+        { message: "Slot immagine non valido." },
+        { status: 400 },
+      );
+    }
+    path = `site/${body.slot}-${Date.now()}.${extension}`;
+  } else {
+    const baseName = slugify(body.filename?.replace(/\.[^.]+$/, "") || "opera");
+    path = `${new Date().getFullYear()}/${Date.now()}-${baseName}.${extension}`;
+  }
 
   const { data, error } = await supabase.storage
     .from("artworks")
