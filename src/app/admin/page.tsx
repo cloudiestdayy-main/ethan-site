@@ -1,128 +1,142 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowUpRight } from "lucide-react";
-import { AdminArtworkManager } from "@/components/admin-artwork-manager";
-import { AdminCommissionManager } from "@/components/admin-commission-manager";
-import { AdminUploadForm } from "@/components/admin-upload-form";
-import { SignOutButton } from "@/components/sign-out-button";
+import {
+  ArrowUpRight,
+  Images,
+  ImageUp,
+  Inbox,
+  PenLine,
+} from "lucide-react";
+import { AdminShell } from "@/components/admin-shell";
 import {
   getAdminSession,
   getAllArtworksForAdmin,
   getCommissionRequests,
 } from "@/lib/admin";
-import { collectCategories } from "@/lib/categories";
 
 export const metadata = {
   title: "Admin",
   robots: { index: false, follow: false },
 };
 
+const SECTION_CARDS = [
+  {
+    href: "/admin/content",
+    icon: PenLine,
+    title: "Contenuti sito",
+    text: "Testi e immagini di home, Chi sono e Contatti, con anteprima live.",
+  },
+  {
+    href: "/admin/upload",
+    icon: ImageUp,
+    title: "Carica opera",
+    text: "Nuova opera per l'archivio, anche con piu' tavole insieme.",
+  },
+  {
+    href: "/admin/artworks",
+    icon: Images,
+    title: "Opere",
+    text: "Modifica, riordina, pubblica o elimina le opere caricate.",
+  },
+  {
+    href: "/admin/commissions",
+    icon: Inbox,
+    title: "Commissioni",
+    text: "Le richieste arrivate dal form contatti.",
+  },
+];
+
 export default async function AdminPage() {
   const session = await getAdminSession();
   if (session.configured && !session.user) redirect("/admin/login");
-  const artworks = session.allowed ? await getAllArtworksForAdmin() : [];
-  const commissions = session.allowed
-    ? await getCommissionRequests()
-    : { ok: true, requests: [] };
-  const newCommissionCount = commissions.requests.filter(
+
+  if (!session.configured) {
+    return (
+      <main className="min-h-screen bg-ink px-5 py-16 md:px-10">
+        <section className="mx-auto max-w-3xl rounded-[20px] bg-paper p-8 md:p-12">
+          <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Configurazione richiesta</p>
+          <h2 className="mt-5 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Aggiungi le variabili Supabase</h2>
+          <p className="mt-6 max-w-2xl text-ink/50">Dopo aver creato il progetto Supabase, imposta NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY e ADMIN_EMAILS.</p>
+        </section>
+      </main>
+    );
+  }
+
+  if (!session.allowed) {
+    return (
+      <main className="min-h-screen bg-ink px-5 py-16 md:px-10">
+        <section className="mx-auto max-w-3xl rounded-[20px] bg-paper p-8 md:p-12">
+          <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Accesso negato</p>
+          <h2 className="mt-5 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Questa email non e&apos; nella allowlist admin.</h2>
+        </section>
+      </main>
+    );
+  }
+
+  const [artworks, commissions] = await Promise.all([
+    getAllArtworksForAdmin(),
+    getCommissionRequests(),
+  ]);
+  const published = artworks.filter((artwork) => artwork.published).length;
+  const drafts = artworks.length - published;
+  const totalPages = artworks.reduce(
+    (sum, artwork) => sum + 1 + artwork.images.length,
+    0,
+  );
+  const newCommissions = commissions.requests.filter(
     (request) => request.status === "new",
   ).length;
 
-  return (
-    <main className="min-h-screen bg-ink px-5 py-8 md:px-10">
-      <div className="mx-auto max-w-[1440px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-pure-white/10 pb-8">
-          <div>
-            <Link href="/" className="text-xs uppercase tracking-[0.18em] text-pure-white/50 hover:text-accent transition-colors">Ethan&apos;s Drawings</Link>
-            <h1 className="mt-5 font-display text-4xl md:text-7xl font-bold text-pure-white uppercase">Admin</h1>
-          </div>
-          {session.user ? <SignOutButton /> : null}
-        </header>
+  const stats = [
+    { label: "Opere pubblicate", value: published },
+    { label: "Bozze", value: drafts },
+    { label: "Tavole totali", value: totalPages },
+    { label: "Richieste nuove", value: newCommissions },
+  ];
 
-        {!session.configured ? (
-          <section className="mt-12 rounded-[20px] bg-paper p-8 md:p-12">
-            <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Configurazione richiesta</p>
-            <h2 className="mt-5 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Aggiungi le variabili Supabase</h2>
-            <p className="mt-6 max-w-2xl text-ink/50">Dopo aver creato il progetto Supabase, imposta NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY e ADMIN_EMAILS.</p>
-          </section>
-        ) : !session.allowed ? (
-          <section className="mt-12 rounded-[20px] bg-paper p-8 md:p-12">
-            <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Accesso negato</p>
-            <h2 className="mt-5 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Questa email non e&apos; nella allowlist admin.</h2>
-          </section>
-        ) : (
-          <div className="mt-12 grid gap-12">
-            <section className="rounded-[20px] bg-paper p-6 md:p-10">
-              <div className="flex flex-wrap items-end justify-between gap-6">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Testi e immagini</p>
-                  <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Contenuti sito</h2>
-                  <p className="mt-4 max-w-xl text-sm text-ink/50">
-                    Modifica i testi di home, Chi sono e Contatti e le immagini
-                    fisse del sito, con anteprima live prima di pubblicare.
-                  </p>
-                </div>
-                <Link
-                  href="/admin/content"
-                  className="group inline-flex min-h-12 items-center gap-3 rounded-full bg-ink px-6 py-3 text-sm uppercase tracking-[0.16em] text-pure-white transition hover:bg-accent"
-                >
-                  Apri l&apos;editor
-                  <ArrowUpRight
-                    size={16}
-                    strokeWidth={1.7}
-                    className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
-                  />
-                </Link>
-              </div>
-            </section>
-            <section className="rounded-[20px] bg-paper p-6 md:p-10">
-              <div className="mb-10">
-                <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Nuova opera</p>
-                <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Carica una tavola</h2>
-              </div>
-              <AdminUploadForm
-                categories={collectCategories(
-                  artworks.map((artwork) => artwork.category),
-                )}
-              />
-            </section>
-            <section className="rounded-[20px] bg-paper p-6 md:p-10">
-              <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Archivio</p>
-                  <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Opere caricate</h2>
-                </div>
-              </div>
-              <AdminArtworkManager
-                key={artworks
-                  .map((artwork) => `${artwork.id}:${artwork.sort_order}:${artwork.image_width || 0}:${artwork.image_height || 0}`)
-                  .join("|")}
-                artworks={artworks}
-              />
-            </section>
-            <section className="rounded-[20px] bg-paper p-6 md:p-10">
-              <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Posta in arrivo</p>
-                  <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Richieste di commissione</h2>
-                </div>
-                {newCommissionCount ? (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-2 text-xs uppercase tracking-[0.16em] text-accent-ink">
-                    {newCommissionCount} {newCommissionCount === 1 ? "nuova" : "nuove"}
-                  </span>
-                ) : null}
-              </div>
-              <AdminCommissionManager
-                key={commissions.requests
-                  .map((request) => `${request.id}:${request.status}`)
-                  .join("|")}
-                requests={commissions.requests}
-                loadOk={commissions.ok}
-              />
-            </section>
+  return (
+    <AdminShell
+      active="overview"
+      title="Panoramica"
+      subtitle="Lo stato del sito a colpo d'occhio. Usa il menu per entrare nelle sezioni."
+    >
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {stats.map((stat) => (
+          <div key={stat.label} className="rounded-[20px] bg-paper p-6">
+            <p className="text-xs uppercase tracking-[0.16em] text-ink/50">
+              {stat.label}
+            </p>
+            <p className="mt-3 font-display text-5xl font-bold text-ink">
+              {stat.value}
+            </p>
           </div>
-        )}
+        ))}
       </div>
-    </main>
+
+      <div className="mt-8 grid gap-4 md:grid-cols-2">
+        {SECTION_CARDS.map((card) => (
+          <Link
+            key={card.href}
+            href={card.href}
+            className="group rounded-[20px] bg-paper p-6 transition hover:-translate-y-0.5 md:p-8"
+          >
+            <div className="flex items-start justify-between gap-4">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-ink text-pure-white transition group-hover:bg-accent-ink">
+                <card.icon size={19} strokeWidth={1.7} />
+              </span>
+              <ArrowUpRight
+                size={18}
+                strokeWidth={1.7}
+                className="text-ink/30 transition group-hover:-translate-y-0.5 group-hover:translate-x-0.5 group-hover:text-accent-ink"
+              />
+            </div>
+            <h2 className="mt-5 font-display text-2xl font-bold uppercase text-ink">
+              {card.title}
+            </h2>
+            <p className="mt-2 text-sm text-ink/60">{card.text}</p>
+          </Link>
+        ))}
+      </div>
+    </AdminShell>
   );
 }
