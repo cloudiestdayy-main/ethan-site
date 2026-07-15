@@ -46,13 +46,13 @@ export function AdminLoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div>
-        <label className="block text-xs uppercase tracking-[0.18em] text-accent mb-2">Email admin</label>
+        <label className="block text-xs uppercase tracking-[0.18em] text-accent-ink mb-2">Email admin</label>
         <input value={email} onChange={(e) => setEmail(e.target.value)} type="email" required autoComplete="email"
           className="w-full bg-transparent border-b border-ink/10 py-3 text-lg text-ink outline-none transition-colors focus:border-accent placeholder:text-ink/20"
           placeholder="admin@email.com" />
       </div>
       <div>
-        <label className="block text-xs uppercase tracking-[0.18em] text-accent mb-2">Password</label>
+        <label className="block text-xs uppercase tracking-[0.18em] text-accent-ink mb-2">Password</label>
         <input value={password} onChange={(e) => setPassword(e.target.value)} type="password" required autoComplete="current-password"
           className="w-full bg-transparent border-b border-ink/10 py-3 text-lg text-ink outline-none transition-colors focus:border-accent placeholder:text-ink/20"
           placeholder="••••••••" />

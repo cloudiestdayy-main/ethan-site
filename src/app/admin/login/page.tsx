@@ -8,7 +8,7 @@ export const metadata = {
 
 export default function AdminLoginPage() {
   return (
-    <main className="min-h-screen bg-pure-white px-5 py-10 md:px-10">
+    <main className="min-h-screen bg-ink px-5 py-10 md:px-10">
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] max-w-6xl items-center">
         <section className="grid w-full gap-12 rounded-[20px] bg-paper p-8 md:p-12 lg:grid-cols-[0.9fr_1.1fr]">
           <div>

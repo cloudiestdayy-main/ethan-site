@@ -307,7 +307,7 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
                 <ImageUp size={16} strokeWidth={1.5} />
                 Seleziona o trascina le tavole
               </span>
-              <span className="text-xs text-ink/35">
+              <span className="text-xs text-ink/50">
                 Anche piu&apos; file insieme — la prima e&apos; la copertina.
                 <br />
                 JPG, PNG, WebP o GIF — max {formatBytes(MAX_BYTES)} ciascuna
@@ -344,13 +344,13 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
                         Copertina
                       </span>
                     ) : (
-                      <span className="mr-2 text-xs text-ink/35">
+                      <span className="mr-2 text-xs text-ink/50">
                         Tavola {index + 1}
                       </span>
                     )}
                     {item.file.name}
                   </p>
-                  <p className="mt-0.5 text-xs text-ink/40">
+                  <p className="mt-0.5 text-xs text-ink/60">
                     {formatBytes(item.file.size)}
                     {item.dimensions?.image_width && item.dimensions?.image_height
                       ? ` · ${item.dimensions.image_width} × ${item.dimensions.image_height}px`
@@ -374,7 +374,7 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
 
       <div className="space-y-5">
         <label className="block">
-          <span className="text-xs uppercase tracking-[0.18em] text-ink/40">
+          <span className="text-xs uppercase tracking-[0.18em] text-ink/60">
             Titolo <span className="text-accent">*</span>
           </span>
           <input
@@ -386,7 +386,7 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
         </label>
         <div className="grid gap-5 md:grid-cols-3">
           <label className="block">
-            <span className="text-xs uppercase tracking-[0.18em] text-ink/40">
+            <span className="text-xs uppercase tracking-[0.18em] text-ink/60">
               Tipo
             </span>
             <select
@@ -399,13 +399,13 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
             </select>
           </label>
           <label className="block">
-            <span className="text-xs uppercase tracking-[0.18em] text-ink/40">
+            <span className="text-xs uppercase tracking-[0.18em] text-ink/60">
               Categoria (collezione)
             </span>
             <AdminCategoryField key={formVersion} categories={categories} />
           </label>
           <label className="block">
-            <span className="text-xs uppercase tracking-[0.18em] text-ink/40">
+            <span className="text-xs uppercase tracking-[0.18em] text-ink/60">
               Anno
             </span>
             <input
@@ -419,7 +419,7 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
           </label>
         </div>
         <label className="block">
-          <span className="text-xs uppercase tracking-[0.18em] text-ink/40">
+          <span className="text-xs uppercase tracking-[0.18em] text-ink/60">
             Descrizione
           </span>
           <textarea
@@ -478,7 +478,7 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
                   <span
                     key={step.key}
                     className={`flex items-center gap-2 ${
-                      reached ? "text-accent" : "text-ink/25"
+                      reached ? "text-accent-ink" : "text-ink/25"
                     }`}
                   >
                     {index > 0 ? <span className="text-ink/15">·</span> : null}
@@ -496,8 +496,8 @@ export function AdminUploadForm({ categories }: { categories: string[] }) {
               state === "error"
                 ? "text-red-400"
                 : state === "done"
-                  ? "text-accent"
-                  : "text-ink/40"
+                  ? "text-accent-ink"
+                  : "text-ink/60"
             }`}
           >
             {message}

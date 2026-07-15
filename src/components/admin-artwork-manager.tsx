@@ -68,7 +68,7 @@ type BackfillResponse = {
 };
 
 function getNoticeClass(tone: NoticeTone) {
-  if (tone === "success") return "text-accent";
+  if (tone === "success") return "text-accent-ink";
   if (tone === "error") return "text-red-400";
   return "text-ink/50";
 }
@@ -491,11 +491,11 @@ export function AdminArtworkManager({
                         </h3>
                         <p className="mt-2 text-sm text-ink/50">{getArtworkSummary(artwork)}</p>
                         {artwork.image_width && artwork.image_height ? (
-                          <p className="mt-1 text-xs uppercase tracking-[0.14em] text-ink/30">
+                          <p className="mt-1 text-xs uppercase tracking-[0.14em] text-ink/45">
                             {artwork.image_width} x {artwork.image_height}px
                           </p>
                         ) : (
-                          <p className="mt-1 text-xs uppercase tracking-[0.14em] text-ink/30">
+                          <p className="mt-1 text-xs uppercase tracking-[0.14em] text-ink/45">
                             Dimensioni mancanti
                           </p>
                         )}
@@ -604,7 +604,7 @@ export function AdminArtworkManager({
                           <span className="text-xs uppercase tracking-[0.18em] text-ink/50">
                             Tavole aggiuntive ({artwork.images.length})
                           </span>
-                          <p className="text-xs text-ink/35">
+                          <p className="text-xs text-ink/50">
                             Pagine successive alla copertina, nell&apos;ordine in
                             cui compaiono nella pagina dell&apos;opera.
                           </p>
@@ -666,7 +666,7 @@ export function AdminArtworkManager({
                               })}
                             </div>
                           ) : (
-                            <p className="text-xs text-ink/35">
+                            <p className="text-xs text-ink/50">
                               Nessuna tavola oltre alla copertina.
                             </p>
                           )}

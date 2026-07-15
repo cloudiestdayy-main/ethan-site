@@ -35,7 +35,7 @@ const FILTERS: { key: Status | "all"; label: string }[] = [
 const STATUS_BADGE: Record<Status, { label: string; className: string }> = {
   new: { label: "Nuova", className: "bg-accent/15 text-accent" },
   read: { label: "Letta", className: "bg-ink/8 text-ink/55" },
-  archived: { label: "Archiviata", className: "bg-ink/5 text-ink/35" },
+  archived: { label: "Archiviata", className: "bg-ink/5 text-ink/50" },
 };
 
 const dateFormatter = new Intl.DateTimeFormat("it-IT", {
@@ -47,7 +47,7 @@ const dateFormatter = new Intl.DateTimeFormat("it-IT", {
 });
 
 function getNoticeClass(tone: NonNullable<Notice>["tone"]) {
-  if (tone === "success") return "text-accent";
+  if (tone === "success") return "text-accent-ink";
   if (tone === "error") return "text-red-400";
   return "text-ink/50";
 }
@@ -162,7 +162,7 @@ export function AdminCommissionManager({
               }`}
             >
               {tab.label}
-              <span className={active ? "text-accent" : "text-ink/30"}>
+              <span className={active ? "text-accent-ink" : "text-ink/45"}>
                 {counts[tab.key]}
               </span>
             </button>
@@ -206,7 +206,7 @@ export function AdminCommissionManager({
                     {isBusy ? (
                       <LoaderCircle size={15} className="animate-spin text-accent" />
                     ) : null}
-                    <time className="text-xs uppercase tracking-[0.12em] text-ink/30">
+                    <time className="text-xs uppercase tracking-[0.12em] text-ink/45">
                       {dateFormatter.format(new Date(request.created_at))}
                     </time>
                   </div>

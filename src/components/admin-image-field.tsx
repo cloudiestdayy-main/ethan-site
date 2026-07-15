@@ -51,7 +51,7 @@ export function AdminImageField({
 
   return (
     <div className="rounded-2xl border border-ink/8 bg-pure-white/60 p-4">
-      <p className="text-xs uppercase tracking-[0.18em] text-ink/40">{label}</p>
+      <p className="text-xs uppercase tracking-[0.18em] text-ink/60">{label}</p>
       <div className="mt-3 flex items-center gap-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
@@ -91,7 +91,7 @@ export function AdminImageField({
           ) : null}
         </div>
       </div>
-      {hint ? <p className="mt-3 text-xs text-ink/35">{hint}</p> : null}
+      {hint ? <p className="mt-3 text-xs text-ink/50">{hint}</p> : null}
       {error ? <p className="mt-3 text-xs text-red-400">{error}</p> : null}
     </div>
   );

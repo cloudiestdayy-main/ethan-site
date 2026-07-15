@@ -375,8 +375,8 @@ const TABS: Tab[] = [
 
 const inputClass =
   "mt-2 w-full border-b border-ink/10 bg-transparent py-3 text-base text-ink placeholder:text-ink/20 outline-none transition focus:border-accent";
-const labelClass = "text-xs uppercase tracking-[0.18em] text-ink/40";
-const hintClass = "mt-2 block text-xs text-ink/35";
+const labelClass = "text-xs uppercase tracking-[0.18em] text-ink/60";
+const hintClass = "mt-2 block text-xs text-ink/50";
 
 type PendingImage = { file: File; url: string };
 
@@ -653,7 +653,7 @@ export function AdminContentEditor({ settings }: { settings: SiteSettings }) {
         <div className="mt-8 grid gap-10">
           {tab.sections.map((section) => (
             <section key={section.title} className="grid gap-6">
-              <p className="border-b border-ink/8 pb-3 text-xs uppercase tracking-[0.2em] text-accent">
+              <p className="border-b border-ink/8 pb-3 text-xs uppercase tracking-[0.2em] text-accent-ink">
                 {section.title}
               </p>
               {section.fields.map((field) =>
@@ -727,14 +727,14 @@ export function AdminContentEditor({ settings }: { settings: SiteSettings }) {
             {saving ? "Salvo..." : "Salva contenuti"}
           </button>
           {isDirty && !saving ? (
-            <span className="rounded-full bg-accent/15 px-4 py-2 text-xs uppercase tracking-[0.14em] text-accent">
+            <span className="rounded-full bg-accent/20 px-4 py-2 text-xs uppercase tracking-[0.14em] text-accent-ink">
               Modifiche non salvate
             </span>
           ) : null}
           {notice ? (
             <p
               className={`text-sm ${
-                notice.tone === "error" ? "text-red-400" : "text-accent"
+                notice.tone === "error" ? "text-red-400" : "text-accent-ink"
               }`}
             >
               {notice.text}
@@ -746,14 +746,14 @@ export function AdminContentEditor({ settings }: { settings: SiteSettings }) {
       <div className="hidden lg:block">
         <div className="sticky top-6">
           <div className="flex items-center justify-between pb-3">
-            <p className="text-xs uppercase tracking-[0.2em] text-ink/40">
+            <p className="text-xs uppercase tracking-[0.2em] text-ink/60">
               Anteprima live
             </p>
             <a
               href={previewSrc}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.12em] text-ink/40 transition hover:text-accent"
+              className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.12em] text-ink/60 transition hover:text-accent"
             >
               Apri la pagina
               <ExternalLink size={13} strokeWidth={1.7} />
@@ -765,7 +765,7 @@ export function AdminContentEditor({ settings }: { settings: SiteSettings }) {
             title="Anteprima del sito"
             className="h-[calc(100vh-7rem)] w-full rounded-2xl border border-ink/10 bg-pure-white"
           />
-          <p className="mt-3 text-xs text-ink/35">
+          <p className="mt-3 text-xs text-ink/50">
             L&apos;anteprima mostra le modifiche mentre scrivi. Diventano
             pubbliche solo dopo &ldquo;Salva contenuti&rdquo;.
           </p>
@@ -773,10 +773,10 @@ export function AdminContentEditor({ settings }: { settings: SiteSettings }) {
       </div>
 
       <div className="lg:hidden">
-        <p className="rounded-2xl border border-ink/8 bg-pure-white/60 p-4 text-xs text-ink/40">
+        <p className="rounded-2xl border border-ink/8 bg-pure-white/60 p-4 text-xs text-ink/60">
           L&apos;anteprima live e&apos; disponibile su schermi piu&apos; grandi.
           Dopo il salvataggio puoi controllare la pagina{" "}
-          <a href={previewSrc} target="_blank" rel="noreferrer" className="text-accent">
+          <a href={previewSrc} target="_blank" rel="noreferrer" className="text-accent-ink u-underline">
             aprendola qui
           </a>
           .

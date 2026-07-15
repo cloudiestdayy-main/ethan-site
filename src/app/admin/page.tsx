@@ -29,25 +29,25 @@ export default async function AdminPage() {
   ).length;
 
   return (
-    <main className="min-h-screen bg-pure-white px-5 py-8 md:px-10">
+    <main className="min-h-screen bg-ink px-5 py-8 md:px-10">
       <div className="mx-auto max-w-[1440px]">
-        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-ink/8 pb-8">
+        <header className="flex flex-wrap items-center justify-between gap-4 border-b border-pure-white/10 pb-8">
           <div>
-            <Link href="/" className="text-xs uppercase tracking-[0.18em] text-ink/40 hover:text-accent transition-colors">Ethan&apos;s Drawings</Link>
-            <h1 className="mt-5 font-display text-4xl md:text-7xl font-bold text-ink uppercase">Admin</h1>
+            <Link href="/" className="text-xs uppercase tracking-[0.18em] text-pure-white/50 hover:text-accent transition-colors">Ethan&apos;s Drawings</Link>
+            <h1 className="mt-5 font-display text-4xl md:text-7xl font-bold text-pure-white uppercase">Admin</h1>
           </div>
           {session.user ? <SignOutButton /> : null}
         </header>
 
         {!session.configured ? (
           <section className="mt-12 rounded-[20px] bg-paper p-8 md:p-12">
-            <p className="text-xs uppercase tracking-[0.2em] text-accent">Configurazione richiesta</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Configurazione richiesta</p>
             <h2 className="mt-5 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Aggiungi le variabili Supabase</h2>
             <p className="mt-6 max-w-2xl text-ink/50">Dopo aver creato il progetto Supabase, imposta NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY e ADMIN_EMAILS.</p>
           </section>
         ) : !session.allowed ? (
           <section className="mt-12 rounded-[20px] bg-paper p-8 md:p-12">
-            <p className="text-xs uppercase tracking-[0.2em] text-accent">Accesso negato</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Accesso negato</p>
             <h2 className="mt-5 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Questa email non e&apos; nella allowlist admin.</h2>
           </section>
         ) : (
@@ -55,7 +55,7 @@ export default async function AdminPage() {
             <section className="rounded-[20px] bg-paper p-6 md:p-10">
               <div className="flex flex-wrap items-end justify-between gap-6">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-accent">Testi e immagini</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Testi e immagini</p>
                   <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Contenuti sito</h2>
                   <p className="mt-4 max-w-xl text-sm text-ink/50">
                     Modifica i testi di home, Chi sono e Contatti e le immagini
@@ -77,7 +77,7 @@ export default async function AdminPage() {
             </section>
             <section className="rounded-[20px] bg-paper p-6 md:p-10">
               <div className="mb-10">
-                <p className="text-xs uppercase tracking-[0.2em] text-accent">Nuova opera</p>
+                <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Nuova opera</p>
                 <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Carica una tavola</h2>
               </div>
               <AdminUploadForm
@@ -89,7 +89,7 @@ export default async function AdminPage() {
             <section className="rounded-[20px] bg-paper p-6 md:p-10">
               <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-accent">Archivio</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Archivio</p>
                   <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Opere caricate</h2>
                 </div>
               </div>
@@ -103,11 +103,11 @@ export default async function AdminPage() {
             <section className="rounded-[20px] bg-paper p-6 md:p-10">
               <div className="mb-10 flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-accent">Posta in arrivo</p>
+                  <p className="text-xs uppercase tracking-[0.2em] text-accent-ink">Posta in arrivo</p>
                   <h2 className="mt-4 font-display text-3xl md:text-5xl font-bold text-ink uppercase">Richieste di commissione</h2>
                 </div>
                 {newCommissionCount ? (
-                  <span className="inline-flex items-center gap-2 rounded-full bg-accent/15 px-4 py-2 text-xs uppercase tracking-[0.16em] text-accent">
+                  <span className="inline-flex items-center gap-2 rounded-full bg-accent/20 px-4 py-2 text-xs uppercase tracking-[0.16em] text-accent-ink">
                     {newCommissionCount} {newCommissionCount === 1 ? "nuova" : "nuove"}
                   </span>
                 ) : null}
